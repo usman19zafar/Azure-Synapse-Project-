@@ -31,7 +31,6 @@ Step 1 – Just read the file and explore
 We start with the simplest form: “show me some rows.”
 
 
-sql
 SELECT
     TOP 100 *
 FROM
@@ -43,6 +42,7 @@ FROM
         FIELDTERMINATOR = ',',
         ROWTERMINATOR = '\n'
     ) AS [result];
+
 
 
 Theory of this step
