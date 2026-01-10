@@ -30,7 +30,7 @@ Understand why this matters for cost and performance.
 Step 1 – Just read the file and explore
 We start with the simplest form: “show me some rows.”
 
-
+```SQL
 SELECT
     TOP 100 *
 FROM
@@ -42,7 +42,7 @@ FROM
         FIELDTERMINATOR = ',',
         ROWTERMINATOR = '\n'
     ) AS [result];
-
+```
 
 
 Theory of this step
@@ -100,7 +100,7 @@ Step 2 – See what data types Synapse inferred
 Now we ask: “What does Synapse think these columns are?”  
 We use sp_describe_first_result_set to introspect the query.
 
-sql
+```sql
 EXEC sp_describe_first_result_set N'
 SELECT
     TOP 100 *
@@ -111,6 +111,7 @@ FROM
         PARSER_VERSION = ''2.0'',
         HEADER_ROW = TRUE
     ) AS [result]';
+```
 Theory of this step
 This is like asking Synapse:
 “Show me the schema you inferred from that query — column names, data types, lengths, nullability, etc.”
@@ -132,9 +133,10 @@ Inside that string, you need to escape single quotes by doubling them:
 
 That’s why you see:
 
-sql
+```sql
 BULK ''abfss://nyctaxidata@786.dfs.core.windows.net/raw/taxi_zone.csv''
 FORMAT = ''CSV''
+```
 Synapse sees that whole N'... ' as one Unicode string containing the query.
 
 What you typically see in the result
@@ -149,7 +151,7 @@ This is the warehouse assuming every box is XXL. It works, but it’s costly and
 Step 3 – Measure the real maximum lengths in the data
 Now we move from “what Synapse guessed” to “what the data actually needs.”
 
-sql
+```sql
 SELECT
     MAX(LEN(LocationID))     AS len_LocationID,
     MAX(LEN(Borough))        AS len_Borough,
@@ -164,6 +166,8 @@ FROM
         FIELDTERMINATOR = ',',
         ROWTERMINATOR = '\n'
     ) AS [result];
+```
+
 Theory of this step
 We’re now doing schema forensics:
 
@@ -202,7 +206,7 @@ The OPENROWSET block is the same as before: we re‑read the file, but this time
 Step 4 – Take control with explicit data types using WITH
 Now comes the architect move: you override Synapse’s guesses and specify your own schema.
 
-sql
+```sql
 SELECT
     *
 FROM
@@ -220,6 +224,7 @@ FROM
         Zone         VARCHAR(50),
         service_zone VARCHAR(15)
     ) AS [result];
+```
 Theory of this step
 The WITH (...) clause tells Synapse:
 
@@ -258,7 +263,7 @@ The OPENROWSET arguments are the same as before; we still read from the same fil
 
 The new part is:
 
-sql
+```sql
 WITH (
     LocationID   SMALLINT,
     Borough      VARCHAR(15),
@@ -266,6 +271,7 @@ WITH (
     service_zone VARCHAR(15)
 )
 LocationID SMALLINT
+```
 
 SMALLINT is enough to store integer values from −32,768 to 32,767.
 
@@ -292,7 +298,7 @@ The final result set now honors your schema, not Synapse’s defaults.
 Step 5 – Validate that Synapse is really using your types
 We close the loop: introspect again, but now with the explicit schema included.
 
-sql
+```sql
 EXEC sp_describe_first_result_set N'
 SELECT
     *
@@ -311,6 +317,8 @@ FROM
         Zone         VARCHAR(50),
         service_zone VARCHAR(15)
     ) AS [result]';
+```
+
 Theory of this step
 This is schema verification:
 
@@ -398,7 +406,7 @@ Understand why this matters for cost and performance.
 Step 1 – Just read the file and explore
 We start with the simplest form: “show me some rows.”
 
-sql
+```sql
 SELECT
     TOP 100 *
 FROM
@@ -410,6 +418,8 @@ FROM
         FIELDTERMINATOR = ',',
         ROWTERMINATOR = '\n'
     ) AS [result];
+```
+
 Theory of this step
 At this stage, you’re in exploration mode. You don’t care yet about perfect types; you just want to see the data and understand the shape: columns, rough values, obvious junk.
 
@@ -465,7 +475,7 @@ Step 2 – See what data types Synapse inferred
 Now we ask: “What does Synapse think these columns are?”  
 We use sp_describe_first_result_set to introspect the query.
 
-sql
+```sql
 EXEC sp_describe_first_result_set N'
 SELECT
     TOP 100 *
@@ -476,6 +486,8 @@ FROM
         PARSER_VERSION = ''2.0'',
         HEADER_ROW = TRUE
     ) AS [result]';
+```
+
 Theory of this step
 This is like asking Synapse:
 “Show me the schema you inferred from that query — column names, data types, lengths, nullability, etc.”
@@ -497,9 +509,11 @@ Inside that string, you need to escape single quotes by doubling them:
 
 That’s why you see:
 
-sql
+```sql
 BULK ''abfss://nyctaxidata@786.dfs.core.windows.net/raw/taxi_zone.csv''
 FORMAT = ''CSV''
+```
+
 Synapse sees that whole N'... ' as one Unicode string containing the query.
 
 What you typically see in the result
@@ -514,7 +528,7 @@ This is the warehouse assuming every box is XXL. It works, but it’s costly and
 Step 3 – Measure the real maximum lengths in the data
 Now we move from “what Synapse guessed” to “what the data actually needs.”
 
-sql
+```sql
 SELECT
     MAX(LEN(LocationID))     AS len_LocationID,
     MAX(LEN(Borough))        AS len_Borough,
@@ -529,6 +543,8 @@ FROM
         FIELDTERMINATOR = ',',
         ROWTERMINATOR = '\n'
     ) AS [result];
+```
+
 Theory of this step
 We’re now doing schema forensics:
 
@@ -567,7 +583,7 @@ The OPENROWSET block is the same as before: we re‑read the file, but this time
 Step 4 – Take control with explicit data types using WITH
 Now comes the architect move: you override Synapse’s guesses and specify your own schema.
 
-sql
+```sql
 SELECT
     *
 FROM
@@ -585,6 +601,8 @@ FROM
         Zone         VARCHAR(50),
         service_zone VARCHAR(15)
     ) AS [result];
+```
+
 Theory of this step
 The WITH (...) clause tells Synapse:
 
@@ -623,7 +641,7 @@ The OPENROWSET arguments are the same as before; we still read from the same fil
 
 The new part is:
 
-sql
+```sql
 WITH (
     LocationID   SMALLINT,
     Borough      VARCHAR(15),
@@ -631,7 +649,7 @@ WITH (
     service_zone VARCHAR(15)
 )
 LocationID SMALLINT
-
+```
 SMALLINT is enough to store integer values from −32,768 to 32,767.
 
 Our IDs are only 3 digits long, so this is safe and efficient.
@@ -657,7 +675,7 @@ The final result set now honors your schema, not Synapse’s defaults.
 Step 5 – Validate that Synapse is really using your types
 We close the loop: introspect again, but now with the explicit schema included.
 
-sql
+```sql
 EXEC sp_describe_first_result_set N'
 SELECT
     *
@@ -676,6 +694,8 @@ FROM
         Zone         VARCHAR(50),
         service_zone VARCHAR(15)
     ) AS [result]';
+```
+
 Theory of this step
 This is schema verification:
 
