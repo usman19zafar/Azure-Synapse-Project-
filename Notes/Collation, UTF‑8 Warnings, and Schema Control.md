@@ -286,6 +286,7 @@ ALTER DATABASE nyc_taxi_discovery COLLATE Latin1_General_100_CI_AI_SC_UTF8;
 ```code
 Out put: All Messages will be gone, it will be like a clean slate!
 ```
+******NOTE: if there is any non publish session is open for this particular Database than Synapse session will give lock message and donot Alter.
 
 Why this approach is better for real projects
 Every query inherits UTF‑8 behavior
