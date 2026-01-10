@@ -9,7 +9,7 @@ You get: wasted space, slower movement, higher cost.
 
 Synapse Serverless does the same thing with data types when you don’t define them.
 This lecture is about taking that control back.
-
+*************************************************************************************************************************************************************************************************
 Step 0 – The dataset and the goal
 We’re working with a CSV in Azure Data Lake Storage Gen2, using the ABFSS protocol:
 
@@ -26,7 +26,7 @@ Check what the data actually needs.
 Override Synapse and define explicit, right‑sized data types.
 
 Understand why this matters for cost and performance.
-
+*************************************************************************************************************************************************************************************************
 Step 1 – Just read the file and explore
 We start with the simplest form: “show me some rows.”
 
@@ -92,7 +92,7 @@ Each row ends with a newline (Unix style).
 
 AS [result]  
 Aliases the virtual table as result, so you can reference it if needed.
-
+*************************************************************************************************************************************************************************************************
 Step 2 – See what data types Synapse inferred
 Now we ask: “What does Synapse think these columns are?”  
 We use sp_describe_first_result_set to introspect the query.
@@ -142,7 +142,7 @@ LocationID → BIGINT
 Borough, Zone, service_zone → VARCHAR(8000)
 
 This is the warehouse assuming every box is XXL. It works, but it’s costly and sloppy.
-
+*************************************************************************************************************************************************************************************************
 Step 3 – Measure the real maximum lengths in the data
 Now we move from “what Synapse guessed” to “what the data actually needs.”
 
@@ -195,7 +195,7 @@ Finds the longest number of characters in LocationID. Even if it’s numeric, it
 We do this for each column to understand true upper bounds.
 
 The OPENROWSET block is the same as before: we re‑read the file, but this time, instead of SELECT *, we compute aggregates.
-
+*************************************************************************************************************************************************************************************************
 Step 4 – Take control with explicit data types using WITH
 Now comes the architect move: you override Synapse’s guesses and specify your own schema.
 
@@ -285,7 +285,7 @@ Max was 11, so 15 is safe and still compact.
 AS [result]
 
 The final result set now honors your schema, not Synapse’s defaults.
-
+*************************************************************************************************************************************************************************************************
 Step 5 – Validate that Synapse is really using your types
 We close the loop: introspect again, but now with the explicit schema included.
 
@@ -331,7 +331,7 @@ Nullability, order, etc.
 Once you see the expected schema, you know:
 
 “When anyone uses this query, Synapse will allocate memory and scan data using my schema, not its guess.”
-
+*************************************************************************************************************************************************************************************************
 Step 6 – Cost and performance: why this isn’t academic
 Serverless SQL pools charge based on data processed.
 When Synapse assumes:
@@ -364,7 +364,7 @@ With explicit, tight data types, those numbers become healthier and more predict
 Executive recap (for your workbook)
 One word: Precision
 Two words: Schema ownership
-
+*************************************************************************************************************************************************************************************************
 Story in one paragraph:  
 You started by letting Synapse Serverless infer types, which is convenient, but lazy and costly in the long run. You then inspected what Synapse inferred, measured the true needs of your columns, and asserted your own schema using the WITH clause in OPENROWSET. Finally, you validated that Synapse is using your schema and reflected on the impact on cost, performance, and design discipline. You went from “Synapse guesses” to “you own the contract.”
 
@@ -374,7 +374,7 @@ You get: wasted space, slower movement, higher cost.
 
 Synapse Serverless does the same thing with data types when you don’t define them.
 This lecture is about taking that control back.
-
+*************************************************************************************************************************************************************************************************
 Step 0 – The dataset and the goal
 We’re working with a CSV in Azure Data Lake Storage Gen2, using the ABFSS protocol:
 
@@ -391,7 +391,7 @@ Check what the data actually needs.
 Override Synapse and define explicit, right‑sized data types.
 
 Understand why this matters for cost and performance.
-
+*************************************************************************************************************************************************************************************************
 Step 1 – Just read the file and explore
 We start with the simplest form: “show me some rows.”
 
@@ -457,7 +457,7 @@ Each row ends with a newline (Unix style).
 
 AS [result]  
 Aliases the virtual table as result, so you can reference it if needed.
-
+*************************************************************************************************************************************************************************************************
 Step 2 – See what data types Synapse inferred
 Now we ask: “What does Synapse think these columns are?”  
 We use sp_describe_first_result_set to introspect the query.
@@ -507,7 +507,7 @@ LocationID → BIGINT
 Borough, Zone, service_zone → VARCHAR(8000)
 
 This is the warehouse assuming every box is XXL. It works, but it’s costly and sloppy.
-
+*************************************************************************************************************************************************************************************************
 Step 3 – Measure the real maximum lengths in the data
 Now we move from “what Synapse guessed” to “what the data actually needs.”
 
@@ -560,7 +560,7 @@ Finds the longest number of characters in LocationID. Even if it’s numeric, it
 We do this for each column to understand true upper bounds.
 
 The OPENROWSET block is the same as before: we re‑read the file, but this time, instead of SELECT *, we compute aggregates.
-
+*************************************************************************************************************************************************************************************************
 Step 4 – Take control with explicit data types using WITH
 Now comes the architect move: you override Synapse’s guesses and specify your own schema.
 
