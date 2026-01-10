@@ -113,8 +113,9 @@ The result shows each column’s type, collation, and nullability
 This is your diagnostic tool.
 ***************************************************************************************************************************************************************************
 5. Step 2 — Check the Current Database Collation
-sql
+```sql
 SELECT name, collation_name FROM sys.databases;
+```
 Why this step matters
 You need to know what collation your database is using
 
