@@ -754,4 +754,4 @@ One word: Precision
 Two words: Schema ownership
 
 Story in one paragraph:  
-You started by letting Synapse Serverless infer types, which is convenient, but lazy and costly in the long run. You then inspected what Synapse inferred, measured the true needs of your columns, and asserted your own schema using the WITH clause in OPENROWSET. Finally, you validated that Synapse is using your schema and reflected on the impact on cost, performance, and design discipline. You went from “Synapse guesses” to “you own the contract.”
+We started by letting Synapse Serverless infer types, which is convenient, but lazy and costly in the long run. You then inspected what Synapse inferred, measured the true needs of your columns, and asserted your own schema using the WITH clause in OPENROWSET. Finally, you validated that Synapse is using your schema and reflected on the impact on cost, performance, and design discipline. You went from “Synapse guesses” to “you own the contract.”
