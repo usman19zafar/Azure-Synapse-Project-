@@ -1,0 +1,295 @@
+Title
+
+Selecting Subset Columns, Handling Files Without Headers, and Using Ordinal Positions in Synapse Serverless
+
+1. Concept Anchor
+
+One word: Precision
+Two words: Column control
+
+Business analogy:  
+Imagine a warehouse with thousands of boxes. If you only need two items, you don’t ask workers to bring the entire warehouse aisle. You specify exactly which shelves and which bins.
+Synapse works the same way:
+
+If you only need two columns, don’t scan all four.
+If your file has no labels (no header), you must tell Synapse exactly which shelf number (ordinal position) to pick from.
+
+This lecture teaches you how to do that.
+
+2. Why This Matters (Theory)
+There are three major reasons to select only the columns you need:
+
+1. Performance
+Synapse Serverless scans only the columns you request when reading Parquet/Delta.
+Even for CSV, selecting fewer columns reduces:
+
+Data movement
+
+Memory usage
+
+Query time
+
+2. Cost
+Serverless SQL pools charge based on data scanned.
+Fewer columns = fewer bytes = lower cost.
+
+3. Development speed
+Wide files (hundreds of columns) are common in big data.
+Selecting only the columns you need avoids:
+
+Long SELECT lists
+
+Repetitive typing
+
+Error‑prone column name handling
+
+3. Step 1 — Selecting a Subset of Columns (File WITH Header)
+We start with a file that has a header row.
+
+Code (using ABFSS path)
+
+```sql
+SELECT
+    *
+FROM
+    OPENROWSET(
+        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/taxi_zone.csv',
+        FORMAT = 'CSV',
+        PARSER_VERSION = '2.0',
+        HEADER_ROW = TRUE,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    ) 
+    WITH (
+        Borough VARCHAR(15),
+        Zone VARCHAR(50)
+    ) AS [result];
+
+```
+
+Explanation
+HEADER_ROW = TRUE tells Synapse to use the first row as column names.
+
+The WITH clause defines only two columns:
+
+Borough
+
+Zone
+
+Synapse maps these names to the header row in the file.
+
+Why this works
+Because the file has a header, Synapse knows:
+
+Code
+Borough → column named "Borough"
+Zone    → column named "Zone"
+This is the simplest scenario.
+
+4. Step 2 — Reading a File WITHOUT a Header
+Now we switch to a file without a header row.
+
+Problem
+Without a header, Synapse assigns default names:
+
+```Code
+C1, C2, C3, C4, ...
+```
+
+Code
+
+```sql
+SELECT
+    *
+FROM
+    OPENROWSET(
+        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/taxi_zone_without_header.csv',
+        FORMAT = 'CSV',
+        PARSER_VERSION = '2.0',
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    ) 
+    WITH (
+        Zone VARCHAR(50) 3,
+        Borough VARCHAR(15) 2
+    ) AS [result];
+```
+
+Explanation
+No HEADER_ROW = TRUE because the file has no header.
+
+Synapse assigns default names: C1, C2, C3, C4.
+
+The numbers after each column definition (3, 2) are ordinal positions.
+
+Ordinal positions
+Zone VARCHAR(50) 3 → read column 3
+
+Borough VARCHAR(15) 2 → read column 2
+
+Why this works
+You are telling Synapse:
+
+“Ignore the default names.
+Pick column 3 and call it Zone.
+Pick column 2 and call it Borough.”
+
+This gives you full control.
+
+5. Step 3 — Fixing Column Names (Standardizing Schema)
+Now we fix inconsistent or messy column names.
+
+Scenario
+The file does have a header, but:
+
+Column names are inconsistent
+
+Some are camelCase
+
+Some are Title Case
+
+Some are lowercase
+
+You want standardized names
+
+Goal
+Rename columns to:
+
+```Code
+location_id
+borough
+zone
+service_zone
+```
+
+```sql
+SELECT
+    *
+FROM
+    OPENROWSET(
+        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/taxi_zone.csv',
+        FORMAT = 'CSV',
+        PARSER_VERSION = '2.0',
+        FIRSTROW = 2,
+        FIELDTERMINATOR = ',',
+        ROWTERMINATOR = '\n'
+    ) 
+    WITH (
+        location_id SMALLINT 1,
+        borough VARCHAR(15) 2,
+        zone VARCHAR(50) 3,
+        service_zone VARCHAR(15) 4
+    ) AS [result];
+```
+
+Explanation
+Why FIRSTROW = 2?
+Because:
+
+The file has a header
+
+But we are ignoring the header
+
+We want to treat row 2 as the first data row
+
+If we didn’t use FIRSTROW = 2, Synapse would try to convert:
+
+```Code
+LocationID → SMALLINT
+Borough → VARCHAR(15)
+…and fail.
+```
+
+Why ordinal positions?
+Because we are not using the header, so we must tell Synapse:
+
+```Code
+Column 1 → location_id
+Column 2 → borough
+Column 3 → zone
+Column 4 → service_zone
+```
+
+This gives:
+
+Clean column names
+
+Consistent naming conventions
+
+Full control over schema
+
+6. Why Ordinal Positions Are Powerful
+Ordinal positions let you:
+
+Select columns in any order
+
+Rename columns to your own standards
+
+Ignore messy headers
+
+Ignore missing headers
+
+Avoid errors from misspelled column names
+
+Build production‑grade schemas from raw files
+
+Example: selecting Zone first, Borough second:
+
+```sql
+WITH (
+    zone VARCHAR(50) 3,
+    borough VARCHAR(15) 2
+)
+```
+Synapse will return:
+
+```Code
+zone | borough
+```
+
+Even though the file is:
+
+```Code
+C1 | C2 | C3 | C4
+```
+This is schema engineering, not just querying.
+
+7. When to Use Each Method
+Use header-based selection when:
+File has a clean header
+
+Column names are consistent
+
+You only need a few columns
+
+Use ordinal positions when:
+File has no header
+
+Header is messy
+
+Column names are inconsistent
+
+You want to rename columns
+
+You want to reorder columns
+
+You want to enforce naming standards
+
+8. Executive Summary
+You learned how to:
+
+Select only the columns you need
+
+Improve performance and reduce cost
+
+Read files without headers
+
+Use ordinal positions to map columns
+
+Rename columns to clean, consistent names
+
+Ignore header rows using FIRSTROW
+
+Build production‑ready schemas from raw CSV files
+
+This is one of the most important skills in Synapse Serverless because real data is messy, and you now know how to take full control.
