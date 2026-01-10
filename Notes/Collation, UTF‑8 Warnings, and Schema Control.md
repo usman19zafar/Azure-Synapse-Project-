@@ -283,6 +283,10 @@ Apply UTF‑8 collation
 ALTER DATABASE nyc_taxi_discovery COLLATE Latin1_General_100_CI_AI_SC_UTF8;
 ```
 
+```code
+Out put: All Messages will be gone, it will be like a clean slate!
+```
+
 Why this approach is better for real projects
 Every query inherits UTF‑8 behavior
 
