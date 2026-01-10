@@ -86,6 +86,13 @@ FROM
     )AS [result]';
 ```
 
+Output:
+
+Potential conversion error while reading VARCHAR column 'Borough' from UTF8 encoded text. Change database collation to a UTF8 collation or specify explicit column schema in WITH clause and assign UTF8 collation to VARCHAR columns.
+Potential conversion error while reading VARCHAR column 'Zone' from UTF8 encoded text. Change database collation to a UTF8 collation or specify explicit column schema in WITH clause and assign UTF8 collation to VARCHAR columns.
+Potential conversion error while reading VARCHAR column 'service_zone' from UTF8 encoded text. Change database collation to a UTF8 collation or specify explicit column schema in WITH clause and assign UTF8 collation to VARCHAR columns.
+
+
 Why this step matters
 It reveals the data types Synapse will use
 
