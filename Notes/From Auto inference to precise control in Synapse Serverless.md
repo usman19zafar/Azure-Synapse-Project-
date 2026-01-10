@@ -30,6 +30,7 @@ Understand why this matters for cost and performance.
 Step 1 – Just read the file and explore
 We start with the simplest form: “show me some rows.”
 
+
 sql
 SELECT
     TOP 100 *
@@ -42,6 +43,8 @@ FROM
         FIELDTERMINATOR = ',',
         ROWTERMINATOR = '\n'
     ) AS [result];
+
+
 Theory of this step
 At this stage, you’re in exploration mode. You don’t care yet about perfect types; you just want to see the data and understand the shape: columns, rough values, obvious junk.
 
