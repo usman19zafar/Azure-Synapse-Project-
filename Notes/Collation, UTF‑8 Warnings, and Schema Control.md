@@ -116,6 +116,25 @@ This is your diagnostic tool.
 ```sql
 SELECT name, collation_name FROM sys.databases;
 ```
+```sql
+output
+SQL_Latin1_General_CP1_CI_AS — 
+```
+
+This means:
+
+SQL_ → legacy SQL Server collation
+
+Latin1_General → Western European rules
+
+CP1 → Code Page 1252 (NOT UTF‑8)
+
+CI → Case Insensitive
+
+AS → Accent Sensitive
+
+This is the default collation for many SQL Server environments.
+
 Why this step matters
 You need to know what collation your database is using
 
@@ -132,8 +151,9 @@ collation_name shows the active collation for each database
 
 You will typically see something like:
 
-Code
+```Code
 SQL_Latin1_General_CP1_CI_AS
+```
 This is not UTF‑8.
 ***************************************************************************************************************************************************************************
 6. Step 3 — Fix Warnings Using Column‑Level Collation
