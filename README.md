@@ -1,4 +1,4 @@
-Azure Synapse Serverless Data Engineering Project
+Azure Synapse Data Engineering Project
 Educational & Demonstration Purpose Only
 This repository contains a structured collection of theory notes, SQL code samples, procedural walkthroughs, and explanatory documents created as part of an educational project focused on Azure Synapse Serverless SQL Pools, data type inference, schema optimization, and data engineering fundamentals.
 
