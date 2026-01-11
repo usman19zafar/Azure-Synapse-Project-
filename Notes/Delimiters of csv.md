@@ -1,0 +1,103 @@
+SOP: Handling Delimiters Inside CSV Data Items
+1. One word:
+Delimiters
+
+2. Two words:
+Delimiter Control
+
+3. Business analogy:
+Think of a CSV parser like a warehouse receiving dock.
+If a shipment arrives with extra commas inside the label, the dock worker may think it’s multiple boxes instead of one box.
+Your job is to mark the box (escape) or wrap the box (quote) so the worker knows it’s a single item.
+
+4. Theory: Why CSV Parsing Breaks
+CSV parsers assume:
+
+Delimiter (, by default) separates columns
+
+Header defines the number of columns
+
+Each row must match the header column count
+
+When a data item contains a comma — e.g.:
+
+Code
+Creative Mobile Technologies, LLC
+The parser incorrectly interprets this as two columns, causing:
+
+Truncation
+
+Misalignment
+
+Silent data corruption (no warnings)
+
+To fix this, you must tell the parser how to treat commas inside data:
+
+Two valid strategies:
+Escape the delimiter  
+Add an escape character (e.g., \) before the comma.
+
+Quote the entire field  
+Wrap the data item in " " so the parser treats it as one unit.
+
+5. SOP: Correctly Parsing CSV Files with Embedded Delimiters
+Step 1 — Connect to the correct database
+sql
+USE nyc_taxi_discovery;
+Step 2 — Demonstrate the problem (unquoted CSV)
+This file contains commas inside data but no escape and no quotes.
+
+sql
+SELECT *
+  FROM OPENROWSET(
+      BULK 'vendor_unquoted.csv',
+      DATA_SOURCE = 'nyc_taxi_data_raw',
+      FORMAT = 'CSV',
+      PARSER_VERSION = '2.0',
+      HEADER_ROW = TRUE
+  ) AS vendor;
+Expected outcome:  
+Vendor names containing commas are truncated.
+
+Step 3 — Fix Option 1: Escape the delimiter
+Theory
+An escape character tells the parser:
+“Anything after this slash is literal, not a delimiter.”
+
+Code
+sql
+SELECT *
+  FROM OPENROWSET(
+      BULK 'vendor_escaped.csv',
+      DATA_SOURCE = 'nyc_taxi_data_raw',
+      FORMAT = 'CSV',
+      PARSER_VERSION = '2.0',
+      HEADER_ROW = TRUE,
+      ESCAPECHAR = '\\'
+  ) AS vendor;
+Outcome:  
+The parser keeps the comma inside the vendor name.
+
+Step 4 — Fix Option 2: Quote the field
+Theory
+Quoting wraps the entire data item so the parser treats it as one column, regardless of internal commas.
+
+Code
+sql
+SELECT *
+  FROM OPENROWSET(
+      BULK 'vendor.csv',
+      DATA_SOURCE = 'nyc_taxi_data_raw',
+      FORMAT = 'CSV',
+      PARSER_VERSION = '2.0',
+      HEADER_ROW = TRUE,
+      FIELDQUOTE = '"'
+  ) AS vendor;
+Note:  
+If the file already uses " " as quotes, you don’t need to specify FIELDQUOTE because it is the default.
+
+6. Boundary‑Document Closure
+This SOP establishes the correct handling of CSV files containing embedded delimiters.
+The two sanctioned methods — escape characters and field quotes — ensure structural integrity during ingestion and prevent silent truncation or column misalignment.
+Any upstream data provider must be instructed to consistently apply one of these two protections.
+This document becomes the authoritative reference for all future ingestion pipelines encountering delimiter‑inside‑data scenarios.
