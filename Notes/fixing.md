@@ -19,8 +19,8 @@ We are teaching the SQL parser how to correctly understand each file’s structu
 
 This is foundational Data Architecture work.
 
-🧩 What Each Code Block Achieves
-1️⃣ Unquoted CSV (vendor_unquoted.csv)
+What Each Code Block Achieves
+Unquoted CSV (vendor_unquoted.csv)
 Goal: Demonstrate what happens when a CSV contains commas inside the data but has no quotes or escape characters.
 
 Outcome:  
@@ -30,7 +30,7 @@ This teaches you:
 
 “If the data contains commas, you must protect them.”
 
-2️⃣ Escaped CSV (vendor_escaped.csv)
+Escaped CSV (vendor_escaped.csv)
 Goal: Show how to fix the problem using an escape character.
 
 Outcome:  
@@ -40,7 +40,7 @@ This teaches you:
 
 “Escape characters protect delimiters inside data.”
 
-3️⃣ Quoted CSV (vendor.csv)
+Quoted CSV (vendor.csv)
 Goal: Show the second fix — using quotes around fields.
 
 Outcome:  
@@ -50,7 +50,7 @@ This teaches you:
 
 “Quotes are the safest way to protect complex text.”
 
-4️⃣ TSV File (trip_type.tsv)
+TSV File (trip_type.tsv)
 Goal: Show how to ingest a file that uses TAB instead of comma.
 
 Outcome:  
@@ -62,7 +62,7 @@ This teaches you:
 
 “Different file formats require different terminators.”
 
-🧠 The Architectural Purpose Behind All This
+The Architectural Purpose Behind All This
 You are building the skill every Data Architect must master:
 
 Understanding and controlling how raw data is parsed.
@@ -108,5 +108,5 @@ different encodings
 
 You’re learning how to control the parser, not just run queries.
 
-📌 The One‑Sentence Summary
+The One‑Sentence Summary
 Through this code, we are achieving reliable ingestion of messy real‑world text files by explicitly teaching SQL how to interpret each file’s delimiter, escape rules, and quoting rules.
