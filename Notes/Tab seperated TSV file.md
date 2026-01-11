@@ -1,0 +1,172 @@
+SOP: Reading Tab‑Separated Values (TSV) Files Using OPENROWSET
+1. One word:
+Tabs
+
+2. Two words:
+Tab Terminator
+
+3. Business analogy:
+Imagine a warehouse where workers expect boxes to be separated by commas on the manifest.
+But today, the supplier sends a manifest where boxes are separated by tabs instead.
+If the worker still looks for commas, the entire manifest becomes unreadable.
+Your job is to tell the worker:
+“Today, the separator is TAB, not comma.”
+
+4. Theory: Why TSV Files Break Default CSV Parsing
+Serverless SQL assumes:
+
+Default delimiter = comma (,)
+
+Default field terminator = comma
+
+Default parser behavior = CSV
+
+A TSV file uses tab characters (\t) instead of commas.
+
+If you try to read a TSV file without specifying FIELDTERMINATOR, the parser:
+
+Looks for commas
+
+Finds none
+
+Treats the entire line as one column
+
+Encounters unexpected characters
+
+Produces errors like:
+“Unexpected token: \n” or “Invalid field length”
+
+To fix this, you must explicitly tell SQL:
+
+```Code
+FIELDTERMINATOR = '\t'
+```
+
+This instructs the parser to treat tab as the column separator.
+
+5. SOP: Reading a TSV File in Serverless SQL
+Step 1 — Connect to the correct database
+```sql
+USE nyc_taxi_discovery;
+Step 2 — Attempt to read the file without FIELDTERMINATOR (to demonstrate the issue)
+sql
+SELECT *
+  FROM OPENROWSET(
+      BULK 'raw/trip_type.tsv',
+      DATA_SOURCE = 'nyctaxidata',
+      FORMAT = 'CSV',
+      PARSER_VERSION = '2.0',
+      HEADER_ROW = TRUE
+  ) AS trip_type;
+```
+Expected outcome:
+Error
+
+Or unreadable data
+
+Because SQL is still expecting commas
+
+Step 3 — Correct the issue by specifying the TAB field terminator
+Updated working code with correct ABFSS path
+
+```sql
+SELECT *
+  FROM OPENROWSET(
+      BULK 'raw/trip_type.tsv',
+      DATA_SOURCE = 'nyctaxidata',
+      FORMAT = 'CSV',
+      PARSER_VERSION = '2.0',
+      HEADER_ROW = TRUE,
+      FIELDTERMINATOR = '\t'
+  ) AS trip_type;
+```
+
+Outcome:
+Data loads correctly
+
+Two columns appear as expected
+
+No parsing errors
+
+6. Why this issue is created (Root Cause Explanation)
+This problem exists because:
+
+1. Serverless SQL defaults to comma‑separated values
+It assumes every file is CSV unless told otherwise.
+
+2. TSV files use a different delimiter
+They use tab instead of comma.
+
+3. Tabs are invisible
+You cannot visually see them like commas, so the parser silently misinterprets the structure.
+
+4. The parser cannot infer the delimiter
+It does not auto‑detect separators.
+It requires explicit instruction.
+
+5. Misalignment leads to errors
+Without the correct terminator:
+
+The entire row becomes one long string
+
+Header mismatch occurs
+
+Unexpected token errors appear
+
+7. Utility: Why solving this matters
+Fixing this issue is important because:
+
+1. Prevents ingestion failures
+Incorrect delimiters cause:
+
+Query errors
+
+Data truncation
+
+Misaligned columns
+
+Corrupted datasets
+
+2. Ensures schema integrity
+Correct parsing ensures:
+
+Column count matches header
+
+Data types are inferred correctly
+
+Downstream transformations remain stable
+
+3. Supports multi‑format ingestion pipelines
+Real‑world data arrives in:
+
+CSV
+
+TSV
+
+Pipe‑delimited
+
+Fixed‑width
+
+JSON
+
+Parquet
+
+A Data Architect must handle all formats reliably.
+
+4. Enables automation
+Once the FIELDTERMINATOR is defined, the ingestion pipeline becomes:
+
+Repeatable
+
+Predictable
+
+Production‑ready
+
+5. Eliminates silent data corruption
+The worst failure is not an error — it’s wrong data with no error.
+Specifying the terminator prevents that.
+
+8. Boundary‑Document Closure
+This SOP establishes the authoritative method for ingesting TSV files into serverless SQL pools.
+By explicitly defining the FIELDTERMINATOR = '\t', we ensure structural accuracy, prevent parsing errors, and maintain schema integrity across ingestion pipelines.
+This document becomes the canonical reference for handling all non‑comma‑delimited text files within the NYC Taxi Discovery environment.
