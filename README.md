@@ -1,6 +1,8 @@
 Azure Synapse Data Engineering Project
 
-NOTE: To give proper answer it is really important to know the question. I am keeping these notes for my own records. Questions are missing here! 
+NOTE: To give proper answer it is really important to know the question. I am keeping these notes for my own records. For me these notes are serving the purpose of customize personal touch. otherwise there are way better official documents are avaialble in tool's resource library. 
+
+
 Educational & Demonstration Purpose Only
 This repository contains a structured collection of theory notes, SQL code samples, procedural walkthroughs, and explanatory documents created as part of an educational project focused on Azure Synapse Serverless SQL Pools, data type inference, schema optimization, and data engineering fundamentals.
 
