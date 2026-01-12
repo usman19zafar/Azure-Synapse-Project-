@@ -1,4 +1,5 @@
-Notes: Using OPENJSON Instead of JSON_VALUE
+Using OPENJSON Instead of JSON_VALUE
+
 This lesson explains why OPENJSON is superior to JSON_VALUE and how to use it to extract fields from JSON documents stored in a file.
 
 The code:
