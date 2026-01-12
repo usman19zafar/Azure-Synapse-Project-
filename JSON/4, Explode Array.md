@@ -135,8 +135,25 @@ WITH (
     payment_type_desc NVARCHAR(MAX) AS JSON
 )
 ```
-This produces:
-
+This produces: Reading data from JSON with arrays
+```SQl
+SELECT CAST(JSON_VALUE(jsonDoc, '$.payment_type') AS SMALLINT) payment_type,
+        CAST(JSON_VALUE(jsonDoc, '$.payment_type_desc[0].value') AS VARCHAR(15)) payment_type_desc_0,
+        CAST(JSON_VALUE(jsonDoc, '$.payment_type_desc[1].value') AS VARCHAR(15)) payment_type_desc_01
+  FROM OPENROWSET(
+      BULK 'payment_type_array.json',
+      DATA_SOURCE = 'nyc_taxi_data_raw',
+      FORMAT = 'CSV',
+      PARSER_VERSION = '1.0', 
+      FIELDTERMINATOR = '0x0b',
+      FIELDQUOTE = '0x0b',
+      ROWTERMINATOR = '0x0a'
+  )
+  WITH
+  (
+      jsonDoc NVARCHAR(MAX)
+  ) AS payment_type;
+```
 payment_type	payment_type_desc (JSON array)
 1	[{"sub_type":10,"value":"Credit card"}]
 5	[{"sub_type":50,"value":"Unknown"},{"sub_type":51,"value":"Unavailable"}]
