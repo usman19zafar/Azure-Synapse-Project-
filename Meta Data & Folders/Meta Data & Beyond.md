@@ -1129,16 +1129,15 @@ Month 13 doesn’t exist — the mechanic says:
 
 Final Summary — All 6 Layers with SQL
 
-Layer	SQL Purpose	Business Analogy
-
-Metadata	filename(), filepath()	Employee ID badges
-
-External Tables	CTAS, CETAS	Official documents
-
-Parquet/Delta	Columnar formats	Shipping containers
-
-Optimization	Partition pruning	Smart warehouse
-
-Architecture	Raw → Gold	Filing cabinet
-
-Debugging	RCA	Mechanic
+```code
+┌──────────────────┬───────────────────────────┬───────────────────────────┐
+│      Layer       │        SQL Purpose        │      Business Analogy     │
+├──────────────────┼───────────────────────────┼───────────────────────────┤
+│ Metadata         │ filename(), filepath()    │ Employee ID badges        │
+│ External Tables  │ CTAS, CETAS               │ Official documents        │
+│ Parquet/Delta    │ Columnar formats          │ Shipping containers       │
+│ Optimization     │ Partition pruning         │ Smart warehouse           │
+│ Architecture     │ Raw → Gold                │ Filing cabinet            │
+│ Debugging        │ RCA (Root Cause Analysis) │ Mechanic                  │
+└──────────────────┴───────────────────────────┴───────────────────────────┘
+```
