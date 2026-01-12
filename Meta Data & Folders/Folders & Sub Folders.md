@@ -193,7 +193,7 @@ Final Summary (No Information Skipped)
 
 Big‑data systems store data in partitioned folders (year, month, day).
 
-OPENROWSET can read:
+OPENROWSET can read:-
 
 A single file
 
