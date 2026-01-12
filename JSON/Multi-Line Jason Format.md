@@ -135,7 +135,7 @@ WITH (
      );
 ```
 6, Output
-Code
+```Code
 +--------------+-------------------+
 | rate_code_id | rate_code         |
 +--------------+-------------------+
@@ -146,6 +146,7 @@ Code
 | 5            | Negotiated fare   |
 | 6            | Group ride        |
 +--------------+-------------------+
+```
 Exactly the same result as the single‑line JSON file.
 
 7, Key Takeaways
