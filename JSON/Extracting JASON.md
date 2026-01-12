@@ -71,9 +71,113 @@ ________________________________________________________________________________
 4, Step 2 — Extracting JSON Properties Using JSON_VALUE()
 Once each line is loaded into jsonDoc, we extract fields:
 
+
+What the Entire Query Does (High‑Level Summary)
+It reads the file payment_type_array.json from your data lake and returns one row per JSON document, with the entire JSON document stored in a single column called jsonDoc.
+
+That’s the whole purpose.
+
+This is Step 1 of the two‑step JSON ingestion pattern.
+
+```sql
+SELECT *
+FROM OPENROWSET(
+        
+      BULK 'raw/payment_type_array.json',
+      DATA_SOURCE = 'nyctaxidata',
+      FORMAT = 'CSV',
+      PARSER_VERSION = '1.0',
+      FIELDTERMINATOR = '0x0b',
+      FIELDQUOTE = '0x0b',
+      ROWTERMINATOR = '0x0a'
+  )
+  WITH
+  (
+      jsonDoc NVARCHAR(MAX)
+  ) AS payment_type;
+```
+
+What Happens Step‑by‑Step
+A, OPENROWSET reads the file from ADLS
 sql
+BULK 'raw/payment_type_array.json',
+DATA_SOURCE = 'nyctaxidata'
+This loads the file from:
+
+```Code
+abfss://nyctaxidata@786.dfs.core.windows.net/raw/payment_type_array.json
+```
+B, FORMAT = 'CSV' forces the CSV parser to read the file
+Even though the file is JSON, Serverless SQL does not have a JSON parser, so we must use the CSV parser.
+
+C, FIELDTERMINATOR and FIELDQUOTE are overridden
+sql
+FIELDTERMINATOR = '0x0b',
+FIELDQUOTE = '0x0b'
+Why?
+
+JSON contains commas → default CSV parsing would break the JSON
+
+JSON contains quotes → default CSV parsing would break the JSON
+
+Vertical tab (0x0b) never appears in JSON, so the parser treats the entire line as one field.
+
+D, ROWTERMINATOR = '0x0a'
+sql
+ROWTERMINATOR = '0x0a'
+This tells Synapse:
+
+Each newline = one JSON document
+
+So the file becomes one row per JSON object
+
+E, WITH (jsonDoc NVARCHAR(MAX)) defines the output schema
+sql
+WITH (jsonDoc NVARCHAR(MAX))
+This tells Synapse:
+
+Create one column
+
+Name it jsonDoc
+
+Store the entire JSON document in it
+
+Use NVARCHAR(MAX) so nothing gets truncated
+
+F, AS payment_type gives the rowset a table alias
+sql
+AS payment_type
+This is required by SQL grammar.
+
+Output of This Query
+The result is a virtual table like this:
+
+```Code
++--------------------------------------------------------------+
+| jsonDoc                                                      |
++--------------------------------------------------------------+
+| {"payment_type":1,"payment_type_desc":[{"value":"Credit"}]}  |
+| {"payment_type":2,"payment_type_desc":[{"value":"Cash"}]}    |
+| {"payment_type":3,"payment_type_desc":[{"value":"No charge"}]}|
+| ...                                                          |
++--------------------------------------------------------------+
+```
+One row per JSON document
+
+One column (jsonDoc) containing the full JSON text
+
+This prepares the data for Step 2:
+
+JSON_VALUE() for scalar fields
+
+OPENJSON() for arrays
+
+One‑Sentence Explanation
+This query reads each line of the JSON file as a single NVARCHAR(MAX) value called jsonDoc, producing one row per JSON document so that you can later extract fields using JSON functions.
+```sql
 CAST(JSON_VALUE(jsonDoc, '$.payment_type') AS SMALLINT)
 CAST(JSON_VALUE(jsonDoc, '$.payment_type_desc') AS VARCHAR(15))
+```
 This produces a clean table:
 
 payment_type	payment_type_desc
