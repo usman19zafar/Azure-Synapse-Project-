@@ -197,6 +197,16 @@ The Taxi Zone dataset is clean — no duplicate location_id values.
 
 8. Closing Summary
 Duplicate detection is one of the foundational steps in data discovery.
+
+```code
+SOP
+Just to summarize, the first step is to identify the primary key within the file.
+
+than look for the counts of records, in duplicate values count is greater than one.
+```
+If you identify your primary key incorrectly, for example, if you identified that burrow, thenlocation ID a primary key than you're
+
+going to think there are duplicates, but there are no duplicates in this data.
 Using Serverless SQL, we can quickly:
 
 inspect raw files
