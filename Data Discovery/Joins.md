@@ -40,6 +40,9 @@ If it contains NULLs, the join will fail or drop rows.
 ```sql
 USE nyc_taxi_discovery;
 
+USE nyc_taxi_discovery;
+
+-- Check for NULL pickup locations
 SELECT TOP 100 *
 FROM OPENROWSET(
         BULK 'trip_data_green_parquet/year=2020/month=01/',
@@ -77,7 +80,9 @@ Business analogy: Treating two CSV/Parquet files as if they were database tables
 
 ______________________________________________________________________________________________________________________________________________________________________________________
 4. Full Combined Query (Clean, Correct, Workbook‑Ready)
+
 ```sql
+-- Join trip data with taxi zone lookup using the SAME location
 SELECT 
     taxi_zone.borough, 
     COUNT(1) AS number_of_trips
@@ -87,7 +92,7 @@ FROM OPENROWSET(
         DATA_SOURCE = 'nyc_taxi_data_raw'
     ) AS trip_data
 JOIN OPENROWSET(
-        BULK 'abfss://nyc-taxi-data@synapsecoursedl.dfs.core.windows.net/raw/taxi_zone.csv',
+        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/taxi_zone.csv',
         FORMAT = 'CSV',
         PARSER_VERSION = '2.0',
         FIRSTROW = 2
@@ -101,6 +106,7 @@ JOIN OPENROWSET(
 ON trip_data.PULocationID = taxi_zone.location_id
 GROUP BY taxi_zone.borough
 ORDER BY number_of_trips;
+
 ```
 This produces the borough‑level trip counts.
 
