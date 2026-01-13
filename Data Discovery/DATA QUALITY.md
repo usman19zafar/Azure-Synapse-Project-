@@ -59,9 +59,8 @@ USE nyc_taxi_discovery;
 
 SELECT TOP 100 *
 FROM OPENROWSET(
-        BULK 'trip_data_green_parquet/year=2020/month=01/',
-        FORMAT = 'PARQUET',
-        DATA_SOURCE = 'nyc_taxi_data_raw'
+        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/trip_data_green_parquet/year=2020/month=01/',
+        FORMAT = 'PARQUET'
     ) AS result;
 ```
 What we observe
@@ -91,10 +90,10 @@ SELECT
     COUNT(1) AS total_number_of_records,
     COUNT(total_amount) AS not_null_total_number_of_records
 FROM OPENROWSET(
-        BULK 'trip_data_green_parquet/year=2020/month=01/',
-        FORMAT = 'PARQUET',
-        DATA_SOURCE = 'nyc_taxi_data_raw'
+        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/trip_data_green_parquet/year=2020/month=01/',
+        FORMAT = 'PARQUET'
     ) AS result;
+
 ```
 Interpretation of results
 Min = -210 → suspicious
@@ -118,11 +117,11 @@ We filter for negative totals to understand the cause.
 ```sql
 SELECT *
 FROM OPENROWSET(
-        BULK 'trip_data_green_parquet/year=2020/month=01/',
-        FORMAT = 'PARQUET',
-        DATA_SOURCE = 'nyc_taxi_data_raw'
+        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/trip_data_green_parquet/year=2020/month=01/',
+        FORMAT = 'PARQUET'
     ) AS result
 WHERE total_amount < 0;
+
 ```
 
 Observations
@@ -170,12 +169,12 @@ SELECT
     payment_type,
     COUNT(1) AS number_of_records
 FROM OPENROWSET(
-        BULK 'trip_data_green_parquet/year=2020/month=01/',
-        FORMAT = 'PARQUET',
-        DATA_SOURCE = 'nyc_taxi_data_raw'
+        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/trip_data_green_parquet/year=2020/month=01/',
+        FORMAT = 'PARQUET'
     ) AS result
 GROUP BY payment_type
 ORDER BY payment_type;
+
 ```
 
 Findings
