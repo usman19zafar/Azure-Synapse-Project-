@@ -81,8 +81,7 @@ We perform three foundational checks:
 5. Total record count
 ```
 
-```code
-sql
+```sql
 SELECT
     MIN(total_amount) AS min_total_amount,
     MAX(total_amount) AS max_total_amount,
