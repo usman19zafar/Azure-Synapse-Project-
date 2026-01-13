@@ -40,9 +40,6 @@ If it contains NULLs, the join will fail or drop rows.
 ```sql
 USE nyc_taxi_discovery;
 
-USE nyc_taxi_discovery;
-
--- Check for NULL pickup locations
 SELECT TOP 100 *
 FROM OPENROWSET(
         BULK 'trip_data_green_parquet/year=2020/month=01/',
@@ -92,10 +89,11 @@ FROM OPENROWSET(
         DATA_SOURCE = 'nyc_taxi_data_raw'
     ) AS trip_data
 JOIN OPENROWSET(
-        BULK 'abfss://nyctaxidata@786.dfs.core.windows.net/raw/taxi_zone.csv',
+        BULK 'taxi_zone.csv',
         FORMAT = 'CSV',
         PARSER_VERSION = '2.0',
-        FIRSTROW = 2
+        FIRSTROW = 2,
+        DATA_SOURCE = 'nyc_taxi_data_raw'
     )
     WITH (
         location_id SMALLINT 1,
