@@ -49,14 +49,18 @@ Schemas:
 bronze   = raw
 silver   = cleaned
 gold     = curated
-Code
+
+```Code
 Data Lake:
  /bronze/source/entity/year=YYYY/month=MM/day=DD
  /silver/domain/entity/v1
  /gold/business/model/v1
+```
+
 4. Step‑by‑Step SQL (Simplest Form)
+
 Step 1 — Create Logical Database
-sql
+```sql
 USE master;
 GO
 
@@ -67,20 +71,21 @@ ALTER DATABASE NYC_Taxi_LW
 COLLATE Latin1_General_100_BIN2_UTF8;
 GO
 Step 2 — Create Schemas
-sql
+```
+```sql
 USE NYC_Taxi_LW;
 GO
-
 CREATE SCHEMA bronze;
 GO
 CREATE SCHEMA silver;
 GO
 CREATE SCHEMA gold;
 GO
+```
 Step 3 — Create External Data Source
 Points to your ADLS container.
 
-sql
+```sql
 USE NYC_Taxi_LW;
 GO
 
@@ -106,12 +111,13 @@ WITH (
         PARSER_VERSION = '2.0'
     )
 );
+```
 GO
 Step 5 — Create External Table (Bronze Layer)
 Column definitions come from your discovery script.
 Example:
 
-sql
+```sql
 USE NYC_Taxi_LW;
 GO
 
@@ -128,11 +134,16 @@ WITH (
 );
 GO
 6. Validate the Table
-sql
+```
+
+```sql
 SELECT TOP 100 * 
 FROM bronze.taxi_zone;
+```
+
 7. What This Achieves
-Code
+
+```Code
 +----------------------+-------------------------------------------+
 | Object               | Purpose                                   |
 +----------------------+-------------------------------------------+
@@ -142,8 +153,11 @@ Code
 | File Format          | CSV rules                                 |
 | External Table       | Virtual table over raw files              |
 +----------------------+-------------------------------------------+
+```
 8. DAIS‑10 Summary
+
 One word
+
 Virtualization
 
 Two words
