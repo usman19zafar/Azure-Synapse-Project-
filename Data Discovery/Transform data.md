@@ -56,7 +56,7 @@ Aggregates the number of trips per hour‑range.
 Makes the output readable from shortest trips → longest trips.
 
 Why this Version Works 
-✔ You used trip_data_green_parquet/**
+our used trip_data_green_parquet/**
 This wildcard solves all path issues:
 
 no need to specify month folders
@@ -69,7 +69,7 @@ no need to adjust paths for each lesson
 
 This is the professional way to read partitioned Parquet in Serverless SQL.
 
-✔ Your DATA_SOURCE root is correct
+Our DATA_SOURCE root is correct
 we aligned it to:
 
 ```Code
