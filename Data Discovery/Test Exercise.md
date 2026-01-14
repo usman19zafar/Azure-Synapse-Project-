@@ -170,7 +170,7 @@ GROUP BY v_taxi_zone.borough
 ORDER BY v_taxi_zone.borough;
 
 
-
+```
 ```sql
 
 GO
@@ -353,7 +353,7 @@ CAST vs ROUND differences
 But the core efficiency difference comes from the trip data ingestion strategy.
 
 🟩 ASCII COMPARISON TABLE
-Code
+```Code
 +------------------------------+------------------------------+------------------------------+-------------------------------+
 | Feature                      | Query 1 (GO)                 | Query 2 (GO2)                | Which Is Better?              |
 +------------------------------+------------------------------+------------------------------+-------------------------------+
