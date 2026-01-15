@@ -95,6 +95,8 @@ This is safe and standard practice.
 
 __________________________________________________________________________________________________________________________________________________________________________________
 4. Why LOCATION Paths Differ
+
+```code
 Table	LOCATION	Meaning
 taxi_zone	'raw/taxi_zone.csv'	Single CSV file
 calendar	'raw/calendar.csv'	Single CSV file
@@ -104,7 +106,7 @@ trip_data_green_csv	'raw/trip_data_green_csv/**'	Folder with many CSV files
 trip_data_green_parquet	'raw/trip_data_green_parquet/**'	Folder with many Parquet files
 trip_data_green_delta	'raw/trip_data_green_delta'	Delta Lake folder
 The /** wildcard tells Synapse to read all files recursively.
-
+```
 
 __________________________________________________________________________________________________________________________________________________________________________________
 5. Why Different File Formats Are Used
