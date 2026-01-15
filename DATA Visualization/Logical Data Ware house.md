@@ -188,7 +188,7 @@ Used for modern CSV ingestion with improved parsing performance.
 
 Code
 ```sql
-IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='csv_file_format')
+--IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='csv_file_format')
   CREATE EXTERNAL FILE FORMAT csv_file_format  
   WITH (  
       FORMAT_TYPE = DELIMITEDTEXT,
@@ -207,7 +207,7 @@ Older parser for compatibility with legacy CSV structures.
 
 Code
 ```sql
-IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='csv_file_format_pv1')
+--IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='csv_file_format_pv1')
   CREATE EXTERNAL FILE FORMAT csv_file_format_pv1 
   WITH (  
       FORMAT_TYPE = DELIMITEDTEXT,
@@ -226,7 +226,7 @@ Used for tab‑separated files (\t).
 
 Code
 ```sql
-IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='tsv_file_format')
+--IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='tsv_file_format')
   CREATE EXTERNAL FILE FORMAT tsv_file_format  
   WITH (  
       FORMAT_TYPE = DELIMITEDTEXT,
@@ -246,7 +246,7 @@ Legacy parser for older TSV structures.
 
 Code
 ```sql
-IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='tsv_file_format_pv1')
+--IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='tsv_file_format_pv1')
   CREATE EXTERNAL FILE FORMAT tsv_file_format_pv1 
   WITH (  
       FORMAT_TYPE = DELIMITEDTEXT,
@@ -265,7 +265,7 @@ Parquet is columnar, compressed, and optimized for analytics.
 
 Code
 ```sql
-IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='parquet_file_format')
+--IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='parquet_file_format')
   CREATE EXTERNAL FILE FORMAT parquet_file_format  
   WITH (  
         FORMAT_TYPE = PARQUET,  
@@ -278,7 +278,7 @@ Delta Lake format supports ACID transactions and versioning.
 
 Code
 ```sql
-IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='delta_file_format')
+--IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='delta_file_format')
   CREATE EXTERNAL FILE FORMAT delta_file_format  
   WITH (  
         FORMAT_TYPE = DELTA,  
