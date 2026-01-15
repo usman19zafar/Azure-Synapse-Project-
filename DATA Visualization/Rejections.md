@@ -132,7 +132,7 @@ Why REJECTED_ROW_LOCATION
 Stores rejected rows + JSON error logs for debugging.
 
 Code
-sql
+```sql
 USE nyc_taxi_ldw;
 
 -- Create taxi_zone table
@@ -151,8 +151,10 @@ CREATE EXTERNAL TABLE bronze.taxi_zone
             REJECT_VALUE = 10,
             REJECTED_ROW_LOCATION = 'rejections/taxi_zone'
     );
-
+```
+```sql
 SELECT * FROM bronze.taxi_zone;
+```
 6.2 calendar External Table (CSV + Reject Logic)
 Why this table exists
 A reusable date dimension for analytics.
@@ -161,7 +163,7 @@ Why reject logic
 Calendar files sometimes contain malformed dates or stray characters.
 
 Code
-sql
+```sql
 -- Create calendar table
 IF OBJECT_ID('bronze.calendar') IS NOT NULL
     DROP EXTERNAL TABLE bronze.calendar;
@@ -188,8 +190,10 @@ CREATE EXTERNAL TABLE bronze.calendar
         REJECT_VALUE = 10,
         REJECTED_ROW_LOCATION = 'rejections/calendar'
     );
-
+```
+```sql
 SELECT * FROM bronze.calendar;
+```
 6.3 vendor External Table (CSV + Reject Logic)
 Why this table exists
 Maps vendor IDs to vendor names.
@@ -198,7 +202,7 @@ Why reject logic
 Vendor files often contain stray characters or corrupted rows.
 
 Code
-sql
+```sql
 -- Create vendor table
 IF OBJECT_ID('bronze.vendor') IS NOT NULL
     DROP EXTERNAL TABLE bronze.vendor;
@@ -215,8 +219,11 @@ CREATE EXTERNAL TABLE bronze.vendor
         REJECT_VALUE = 10,
         REJECTED_ROW_LOCATION = 'rejections/vendor'
     );
+```
 
+```sql
 SELECT * FROM bronze.vendor;
+```
 6.4 trip_type External Table (TSV + Reject Logic)
 Why this table exists
 Maps trip type codes to descriptions.
@@ -228,7 +235,7 @@ Why reject logic
 TSV files often contain inconsistent delimiters.
 
 Code
-sql
+```sql
 -- Create trip_type table
 IF OBJECT_ID('bronze.trip_type') IS NOT NULL
     DROP EXTERNAL TABLE bronze.trip_type;
@@ -245,17 +252,21 @@ CREATE EXTERNAL TABLE bronze.trip_type
         REJECT_VALUE = 10,
         REJECTED_ROW_LOCATION = 'rejections/trip_type'
     );
+```
+```sql
 
 SELECT * FROM bronze.trip_type;
+```
 6.5 trip_data_green_csv (CSV Folder, No Reject Logic)
 Why no reject logic?
 This dataset is large and uses parser version 2.0, which is faster but does not support reject logic.
 
 Why LOCATION = 'raw/trip_data_green_csv/'**
+
 Reads all CSV files recursively.
 
 Code
-sql
+```sql
 -- Create trip_data_green_csv table
 IF OBJECT_ID('bronze.trip_data_green_csv') IS NOT NULL
     DROP EXTERNAL TABLE bronze.trip_data_green_csv;
@@ -288,14 +299,16 @@ CREATE EXTERNAL TABLE bronze.trip_data_green_csv
         DATA_SOURCE = nyc_taxi_src,   
         FILE_FORMAT = csv_file_format
     );
-
+```
+```sql
 SELECT TOP(100) * FROM bronze.trip_data_green_csv;
+```
 6.6 trip_data_green_parquet (Parquet Folder)
 Why Parquet?
 Columnar, compressed, optimized for analytics.
 
 Code
-sql
+```sql
 -- Create trip_data_green_parquet table
 IF OBJECT_ID('bronze.trip_data_green_parquet') IS NOT NULL
     DROP EXTERNAL TABLE bronze.trip_data_green_parquet;
@@ -328,7 +341,7 @@ CREATE EXTERNAL TABLE bronze.trip_data_green_parquet
         DATA_SOURCE = nyc_taxi_src,   
         FILE_FORMAT = parquet_file_format
     );
-
+```
 SELECT TOP(100) * FROM bronze.trip_data_green_parquet;
 6.7 trip_data_green_delta (Delta Lake Folder)
 Why Delta?
@@ -341,6 +354,7 @@ versioning
 schema evolution
 
 Code
+
 ```sql
 -- Create trip_data_green_delta table
 IF OBJECT_ID('bronze.trip_data_green_delta') IS NOT NULL
