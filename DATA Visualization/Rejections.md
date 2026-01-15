@@ -60,7 +60,7 @@ allow a controlled number of bad rows
 continue processing
 
 store invalid rows for investigation
-
+```code
 Reject Options Solve This
 Reject options allow:
 
@@ -69,11 +69,12 @@ REJECT_VALUE	Max invalid rows allowed before failure
 REJECTED_ROW_LOCATION	Folder where rejected rows + JSON error logs are written
 Parser Version Requirement
 Reject logic only works with parser version 1.0, so CSV/TSV tables must use:
+```
 
-Code
+```Code
 FILE_FORMAT = csv_file_format_pv1
 FILE_FORMAT = tsv_file_format_pv1
-
+```
 
 __________________________________________________________________________________________________________________________________________________________________________________
 3. Why We Drop External Tables Before Recreating Them
