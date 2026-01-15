@@ -461,7 +461,10 @@ CREATE EXTERNAL TABLE bronze.trip_data_green_parquet
         FILE_FORMAT = parquet_file_format
     );
 ```
+
+```sql
 SELECT TOP(100) * FROM bronze.trip_data_green_parquet;
+```
 
 6.7 trip_data_green_delta (Delta Lake Folder)
 Why Delta?
@@ -510,7 +513,9 @@ CREATE EXTERNAL TABLE bronze.trip_data_green_delta
         DATA_SOURCE = nyc_taxi_src,   
         FILE_FORMAT = delta_file_format
     );
+```
 
+```sql
 SELECT TOP(100) * FROM bronze.trip_data_green_delta;
 ```
 __________________________________________________________________________________________________________________________________________________________________________________
