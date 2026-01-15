@@ -312,6 +312,7 @@ Mechanical explanation
 Architect‑level analysis
 
 This becomes your master reference for Serverless SQL external objects.
+_______________________________________________________________________________________________________________________________________________________________________________
 
 SECTION 1 — DATABASE CREATION
 
@@ -325,27 +326,37 @@ CREATE DATABASE nyc_taxi_ldw
 GO
 ```
 
-###H3 One‑word meaning: Creation
+One‑word meaning: Creation
 
 Two‑word logic: Workspace Setup
 
 Mechanical Explanation
+
 USE master → Switches context to the master database (required before creating new DBs).
 
 CREATE DATABASE nyc_taxi_ldw → Allocates metadata for a new logical database.
 
 Architect Analysis
+
 You always create Lakehouse databases in Serverless SQL as metadata-only containers.
+
 No storage is allocated — everything lives in ADLS.
+
 This DB becomes your semantic layer for Bronze/Silver/Gold.
 
 Query
-sql
+
+```sql
 ALTER DATABASE nyc_taxi_ldw COLLATE Latin1_General_100_BIN2_UTF8
 GO
+```
+
 One‑word meaning: Collation
+
 Two‑word logic: Binary Discipline
+
 Mechanical Explanation
+
 Changes the database collation to a UTF‑8, binary‑sorted, case‑sensitive collation.
 
 Architect Analysis
@@ -362,7 +373,7 @@ Predictable string comparisons
 This collation avoids silent truncation and inconsistent sorting.
 
 Query
-sql
+```sql
 USE nyc_taxi_ldw
 GO
 
@@ -374,14 +385,20 @@ GO
 
 CREATE SCHEMA gold
 GO
+```
+
 One‑word meaning: Structure
+
 Two‑word logic: Layer Discipline
+
 Mechanical Explanation
+
 Switch to the new DB.
 
 Create three schemas representing the medallion architecture.
 
 Architect Analysis
+
 This enforces:
 
 Bronze → Raw external tables
@@ -391,30 +408,41 @@ Silver → Cleaned, typed, curated
 Gold → Business-ready aggregates
 
 This is the backbone of all modern data engineering.
+_______________________________________________________________________________________________________________________________________________________________________________
 
-📘 SECTION 2 — EXTERNAL DATA SOURCE
+SECTION 2 — EXTERNAL DATA SOURCE
+
 Query
-sql
+```sql
 IF NOT EXISTS (SELECT * FROM sys.external_data_sources WHERE name = 'nyc_taxi_src')
     CREATE EXTERNAL DATA SOURCE nyc_taxi_src
     WITH
     (    LOCATION         = 'https://synapsecoursedl.dfs.core.windows.net/nyc-taxi-data'
     );
+```
 One‑word meaning: Pointer
+
 Two‑word logic: Storage Mapping
+
 Mechanical Explanation
+
 Checks if the data source exists.
 
 If not, creates a pointer to the ADLS Gen2 container.
 
 Architect Analysis
-External data sources are connection objects.
-They do not store credentials — they only store the URI root.
-All external tables under this data source inherit this root.
 
-📘 SECTION 3 — EXTERNAL FILE FORMATS
+External data sources are connection objects.
+
+They do not store credentials — they only store the URI root.
+
+All external tables under this data source inherit this root.
+_______________________________________________________________________________________________________________________________________________________________________________
+
+SECTION 3 — EXTERNAL FILE FORMATS
 CSV — Parser 2.0
-sql
+
+```sql
 IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='csv_file_format')
   CREATE EXTERNAL FILE FORMAT csv_file_format  
   WITH (  
@@ -427,9 +455,13 @@ IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='csv_file_for
       , Encoding = 'UTF8'
       , PARSER_VERSION = '2.0' )   
       );  
+```
 One‑word meaning: Fast
+
 Two‑word logic: High Performance
+
 Mechanical Explanation
+
 Defines how CSV files are read.
 
 Parser 2.0 = faster, fewer features.
@@ -437,6 +469,7 @@ Parser 2.0 = faster, fewer features.
 First row = 2 → skip header.
 
 Architect Analysis
+
 Use this when:
 
 Files are clean
@@ -448,7 +481,8 @@ Performance matters
 Parser 2.0 is the default for production ingestion.
 
 CSV — Parser 1.0
-sql
+
+```sql
 IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='csv_file_format_pv1')
   CREATE EXTERNAL FILE FORMAT csv_file_format_pv1 
   WITH (  
@@ -461,12 +495,17 @@ IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='csv_file_for
       , Encoding = 'UTF8'
       , PARSER_VERSION = '1.0' )   
       );  
+```
 One‑word meaning: Flexible
+
 Two‑word logic: Reject Support
+
 Mechanical Explanation
+
 Same as above, but parser version = 1.0.
 
 Architect Analysis
+
 Parser 1.0 is required for:
 
 Reject options
@@ -478,7 +517,8 @@ Bad record handling
 Use this when data quality is uncertain.
 
 TSV — Parser 2.0
-sql
+
+```sql
 IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='tsv_file_format')
   CREATE EXTERNAL FILE FORMAT tsv_file_format  
   WITH (  
@@ -491,6 +531,7 @@ IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='tsv_file_for
       , Encoding = 'UTF8'
       , PARSER_VERSION = '2.0' )   
       );  
+```
 One‑word meaning: Tabs
 Two‑word logic: TSV Reader
 Mechanical Explanation
@@ -508,7 +549,7 @@ Government datasets
 Parser 2.0 = fast.
 
 TSV — Parser 1.0
-sql
+```sql
 IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='tsv_file_format_pv1')
   CREATE EXTERNAL FILE FORMAT tsv_file_format_pv1 
   WITH (  
@@ -521,6 +562,7 @@ IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='tsv_file_for
       , Encoding = 'UTF8'
       , PARSER_VERSION = '1.0' )   
       );  
+```
 One‑word meaning: Fallback
 Two‑word logic: Reject Compatible
 Mechanical Explanation
@@ -534,17 +576,20 @@ Data is messy
 You need error capture
 
 Parquet
-sql
+```sql
 IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='parquet_file_format')
   CREATE EXTERNAL FILE FORMAT parquet_file_format  
   WITH (  
         FORMAT_TYPE = PARQUET,  
         DATA_COMPRESSION = 'org.apache.hadoop.io.compress.SnappyCodec'  
        ); 
+```
+
 One‑word meaning: Columnar
+
 Two‑word logic: Optimized Storage
-Mechanical Explanation
-Parquet is columnar.
+
+Mechanical Explanation Parquet is columnar.
 
 Snappy compression is default.
 
@@ -567,7 +612,9 @@ IF NOT EXISTS (SELECT * FROM sys.external_file_formats WHERE name ='delta_file_f
        ); 
 ```
 One‑word meaning: Transactional
+
 Two‑word logic: Lakehouse Tables
+
 Mechanical Explanation
 Delta = Parquet + transaction log.
 
@@ -582,6 +629,7 @@ Upserts
 Slowly changing dimensions
 
 Gold layer tables
+_______________________________________________________________________________________________________________________________________________________________________________
 
 SECTION 4 — REJECT OPTIONS (Conceptual)
 
@@ -600,6 +648,7 @@ Write bad rows to storage
 Continue processing
 
 Architect Analysis
+
 This is essential for:
 
 Real‑world messy data
