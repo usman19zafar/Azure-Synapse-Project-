@@ -97,32 +97,46 @@ ________________________________________________________________________________
 4. Why LOCATION Paths Differ
 
 ```code
-Table	LOCATION	Meaning
-taxi_zone	'raw/taxi_zone.csv'	Single CSV file
-calendar	'raw/calendar.csv'	Single CSV file
-vendor	'raw/vendor.csv'	Single CSV file
-trip_type	'raw/trip_type.tsv'	Single TSV file
-trip_data_green_csv	'raw/trip_data_green_csv/**'	Folder with many CSV files
-trip_data_green_parquet	'raw/trip_data_green_parquet/**'	Folder with many Parquet files
-trip_data_green_delta	'raw/trip_data_green_delta'	Delta Lake folder
++---------------------------+----------------------------------------+-------------------------------+
+| Table                     | LOCATION                               | Meaning                       |
++---------------------------+----------------------------------------+-------------------------------+
+| taxi_zone                 | raw/taxi_zone.csv                      | Single CSV file               |
+| calendar                  | raw/calendar.csv                       | Single CSV file               |
+| vendor                    | raw/vendor.csv                         | Single CSV file               |
+| trip_type                 | raw/trip_type.tsv                      | Single TSV file               |
+| trip_data_green_csv       | raw/trip_data_green_csv/**             | Folder with many CSV files    |
+| trip_data_green_parquet   | raw/trip_data_green_parquet/**         | Folder with many Parquet      |
+|                           |                                        | files (recursive)             |
+| trip_data_green_delta     | raw/trip_data_green_delta              | Delta Lake folder             |
++---------------------------+----------------------------------------+-------------------------------+
 The /** wildcard tells Synapse to read all files recursively.
 ```
 
+Mechanical Note
+The /** wildcard instructs Synapse Serverless SQL to read all files recursively, including subfolders.
+
+No wildcard is needed for Delta Lake folders because Synapse automatically reads the transaction log and underlying Parquet files.
 __________________________________________________________________________________________________________________________________________________________________________________
 5. Why Different File Formats Are Used
-File Format	Why Used
-csv_file_format_pv1	Required for reject logic
-tsv_file_format_pv1	Required for reject logic on TSV
-csv_file_format	Faster parser for large CSV datasets
-parquet_file_format	Columnar, compressed, optimized
-delta_file_format	ACID, versioned, Lakehouse-ready
-
-
+```code
++-------------------------+-----------------------------------------------+
+| File Format             | Why Used                                      |
++-------------------------+-----------------------------------------------+
+| csv_file_format_pv1     | Required for reject logic                     |
+| tsv_file_format_pv1     | Required for reject logic on TSV              |
+| csv_file_format         | Faster parser for large CSV datasets          |
+| parquet_file_format     | Columnar, compressed, optimized               |
+| delta_file_format       | ACID, versioned, Lakehouse-ready              |
++-------------------------+-----------------------------------------------+
+```
 __________________________________________________________________________________________________________________________________________________________________________________
 6. Full Code With Explanations Before Each Block
+
 6.1 taxi_zone External Table (CSV + Reject Logic)
+
 Why this table exists
 This is the first Bronze table.
+
 It demonstrates:
 
 reject handling
@@ -132,9 +146,11 @@ CSV ingestion
 metadata recreation pattern
 
 Why REJECT_VALUE = 10
+
 Allows up to 10 bad rows before failing.
 
 Why REJECTED_ROW_LOCATION
+
 Stores rejected rows + JSON error logs for debugging.
 
 Code
@@ -158,9 +174,11 @@ CREATE EXTERNAL TABLE bronze.taxi_zone
             REJECTED_ROW_LOCATION = 'rejections/taxi_zone'
     );
 ```
+
 ```sql
 SELECT * FROM bronze.taxi_zone;
 ```
+
 6.2 calendar External Table (CSV + Reject Logic)
 Why this table exists
 A reusable date dimension for analytics.
@@ -197,9 +215,11 @@ CREATE EXTERNAL TABLE bronze.calendar
         REJECTED_ROW_LOCATION = 'rejections/calendar'
     );
 ```
+
 ```sql
 SELECT * FROM bronze.calendar;
 ```
+
 6.3 vendor External Table (CSV + Reject Logic)
 Why this table exists
 Maps vendor IDs to vendor names.
@@ -230,7 +250,9 @@ CREATE EXTERNAL TABLE bronze.vendor
 ```sql
 SELECT * FROM bronze.vendor;
 ```
+
 6.4 trip_type External Table (TSV + Reject Logic)
+
 Why this table exists
 Maps trip type codes to descriptions.
 
@@ -259,10 +281,12 @@ CREATE EXTERNAL TABLE bronze.trip_type
         REJECTED_ROW_LOCATION = 'rejections/trip_type'
     );
 ```
+
 ```sql
 
 SELECT * FROM bronze.trip_type;
 ```
+
 6.5 trip_data_green_csv (CSV Folder, No Reject Logic)
 Why no reject logic?
 This dataset is large and uses parser version 2.0, which is faster but does not support reject logic.
@@ -306,11 +330,14 @@ CREATE EXTERNAL TABLE bronze.trip_data_green_csv
         FILE_FORMAT = csv_file_format
     );
 ```
+
 ```sql
 SELECT TOP(100) * FROM bronze.trip_data_green_csv;
 ```
+
 6.6 trip_data_green_parquet (Parquet Folder)
 Why Parquet?
+
 Columnar, compressed, optimized for analytics.
 
 Code
@@ -349,6 +376,7 @@ CREATE EXTERNAL TABLE bronze.trip_data_green_parquet
     );
 ```
 SELECT TOP(100) * FROM bronze.trip_data_green_parquet;
+
 6.7 trip_data_green_delta (Delta Lake Folder)
 Why Delta?
 Delta Lake supports:
