@@ -383,7 +383,9 @@ Code
 -- Create trip_data_green_csv table
 IF OBJECT_ID('bronze.trip_data_green_csv') IS NOT NULL
     DROP EXTERNAL TABLE bronze.trip_data_green_csv;
+```
 
+```sql
 CREATE EXTERNAL TABLE bronze.trip_data_green_csv
     (
         VendorID INT,
@@ -428,7 +430,8 @@ Code
 -- Create trip_data_green_parquet table
 IF OBJECT_ID('bronze.trip_data_green_parquet') IS NOT NULL
     DROP EXTERNAL TABLE bronze.trip_data_green_parquet;
-
+```
+```sql
 CREATE EXTERNAL TABLE bronze.trip_data_green_parquet
     (
         VendorID INT,
