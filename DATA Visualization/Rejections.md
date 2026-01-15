@@ -479,7 +479,9 @@ Code
 -- Create trip_data_green_delta table
 IF OBJECT_ID('bronze.trip_data_green_delta') IS NOT NULL
     DROP EXTERNAL TABLE bronze.trip_data_green_delta;
+```
 
+```sql
 CREATE EXTERNAL TABLE bronze.trip_data_green_delta
     (
         VendorID INT,
