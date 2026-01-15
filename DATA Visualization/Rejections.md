@@ -79,7 +79,9 @@ FILE_FORMAT = tsv_file_format_pv1
 
 __________________________________________________________________________________________________________________________________________________________________________________
 3. Why We Drop External Tables Before Recreating Them
+
 External tables store metadata only, not data.
+
 Dropping them:
 
 does NOT delete data in ADLS
