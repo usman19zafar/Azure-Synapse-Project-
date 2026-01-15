@@ -208,9 +208,11 @@ A reusable date dimension for analytics.
 Why reject logic
 Calendar files sometimes contain malformed dates or stray characters.
 
-Code
-```sql
+
 -- Create calendar table
+
+```sql
+
 IF OBJECT_ID('bronze.calendar') IS NOT NULL
     DROP EXTERNAL TABLE bronze.calendar;
 
