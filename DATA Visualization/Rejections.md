@@ -59,9 +59,10 @@ allow a controlled number of bad rows
 
 continue processing
 
-store invalid rows for investigation
+store invalid rows for investigation, 
+Reject Options Solve These issues.
+
 ```code
-Reject Options Solve This
 Reject options allow:
 
 Option	Meaning
