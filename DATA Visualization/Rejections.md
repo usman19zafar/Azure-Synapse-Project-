@@ -197,6 +197,65 @@ JOIN sys.schemas s ON t.schema_id = s.schema_id
 ORDER BY s.name, t.name;
 ```
 
+The Mechanical Truth
+Serverless SQL external tables do NOT appear in the Synapse Studio “Tables” pane.  
+They only appear in:
+
+The database → External Tables folder
+
+Or via a query against sys.external_tables
+
+If you’re looking under Tables (the regular tables folder), you will never see them.
+
+How to Confirm the Table Exists
+Run this:
+
+Code
+SELECT * 
+FROM sys.external_tables
+WHERE name = 'taxi_zone';
+If it returns a row → the table exists.
+
+You can also check the schema:
+
+```Code
+SELECT s.name AS schema_name, t.name AS table_name
+FROM sys.external_tables t
+JOIN sys.schemas s ON t.schema_id = s.schema_id
+ORDER BY s.name, t.name;
+```
+You should see:
+```code
+bronze   taxi_zone
+```
+Where It Appears in Synapse Studio
+In the left pane:
+
+```Code
+nyc_taxi_ldw
+ └── External Tables
+       └── bronze.taxi_zone
+```
+
+NOT under:
+
+```Code
+nyc_taxi_ldw
+ └── Tables
+```
+That folder is only for physical tables in Dedicated SQL Pools.
+
+Serverless SQL has no physical storage, so everything is external.
+
+Quick Test Query
+To prove the table works:
+
+```Code
+SELECT TOP 10 *
+FROM bronze.taxi_zone;
+If this returns rows → everything is correct.
+```
+
 ```sql
 SELECT * FROM bronze.taxi_zone;
 ```
