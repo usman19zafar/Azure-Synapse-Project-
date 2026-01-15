@@ -156,8 +156,25 @@ Stores rejected rows + JSON error logs for debugging.
 Code
 ```sql
 USE nyc_taxi_ldw;
+```
 
+```sql
 -- Create taxi_zone table
+IF EXISTS (SELECT * FROM sys.external_tables WHERE name = 'taxi_zone' AND schema_id = SCHEMA_ID('bronze'))
+    DROP EXTERNAL TABLE bronze.taxi_zone;
+```
+OR
+```sql
+-- Drop if exists (Serverless-compatible)
+IF EXISTS (
+    SELECT * 
+    FROM sys.external_tables 
+    WHERE name = 'taxi_zone' 
+      AND schema_id = SCHEMA_ID('bronze')
+)
+    DROP EXTERNAL TABLE bronze.taxi_zone;
+```
+```sql
 IF OBJECT_ID('bronze.taxi_zone') IS NOT NULL
     DROP EXTERNAL TABLE bronze.taxi_zone;
 
@@ -173,6 +190,11 @@ CREATE EXTERNAL TABLE bronze.taxi_zone
             REJECT_VALUE = 10,
             REJECTED_ROW_LOCATION = 'rejections/taxi_zone'
     );
+
+SELECT s.name AS schema_name, t.name AS table_name
+FROM sys.external_tables t
+JOIN sys.schemas s ON t.schema_id = s.schema_id
+ORDER BY s.name, t.name;
 ```
 
 ```sql
