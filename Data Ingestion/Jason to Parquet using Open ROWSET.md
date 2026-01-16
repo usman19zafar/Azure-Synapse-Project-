@@ -39,13 +39,13 @@ ________________________________________________________________________________
 
 Step 1 — Switch database
 
-```Code
+```sql
 USE nyc_taxi_ldw;
 GO
 ```
 Step 2 — Drop Silver table if it exists
 
-```Code
+```sql
 IF OBJECT_ID('silver.rate_code') IS NOT NULL
     DROP EXTERNAL TABLE silver.rate_code;
 GO
