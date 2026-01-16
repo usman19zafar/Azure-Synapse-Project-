@@ -191,3 +191,44 @@ Bronze → Silver transformation is format‑only
 Each Silver table gets its own script
 
 Pipelines will automate folder cleanup in production
+
+```code
++-------------------------------------------------------------------------------------------+
+|                               RESULT ACHIEVEMENTS                                         |
++-------------------------------+-----------------------------------------------------------+
+| Result                        | How It Was Verified                                       |
++-------------------------------+-----------------------------------------------------------+
+| External table created        | Synapse message: "Command completed successfully"         |
+| Data written to storage       | Message shows "data written: X MB"                        |
+| Silver folder created         | Data Hub → Container → silver/taxi_zone                  |
+| Parquet files generated       | Visible under the folder                                  |
+| Table query works             | SELECT * FROM silver.taxi_zone returns rows               |
+| Data matches Bronze           | Row count and columns identical                           |
++-------------------------------------------------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------+
+|                               ROOT CAUSE ANALYSIS (RCA)                                   |
++------------------------------------------+-------------------------------+-----------------+
+| Error                                    | Root Cause                    | Fix             |
++------------------------------------------+-------------------------------+-----------------+
+| "External table already exists"          | Metadata exists               | Drop table      |
+| "External table location already exists" | Folder contains files         | Delete folder   |
+| "Cannot overwrite files"                 | CE never overwrites           | Pipeline cleanup|
+| "Batch error with semicolon"             | DDL cannot share batch        | Use GO          |
++-------------------------------------------------------------------------------------------+
+
+
++-------------------------------------------------------------------------------------------+
+|                               ABSOLUTE NOTES (FINAL)                                      |
++-------------------------------------------------------------------------------------------+
+| • Bronze = CSV ingestion; Silver = Parquet optimization                                   |
+| • CTAS performs: READ → CONVERT → WRITE → REGISTER                                        |
+| • CTAS never overwrites existing files                                                     |
+| • Silver folder must be empty before execution                                            |
+| • External table creation requires: DATA_SOURCE, LOCATION, FILE_FORMAT                    |
+| • Bronze → Silver transformation is format‑only (no business logic)                       |
+| • Each Silver table must have its own script (modular execution)                          |
+| • Pipelines handle deletion + CTAS execution in production                                |
++-------------------------------------------------------------------------------------------+
+```
