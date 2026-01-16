@@ -17,3 +17,12 @@ A clear explanation of the difference between workspace‑owned resources (SQL e
 Summary:  
 A comparison of file‑based access (HADOOP) vs database‑engine access (NATIVE), explaining when to use each, how they behave, and why serverless SQL uses HADOOP for data lake files.
 
+```sql
++----------------------+-------------------------------+
+| Incorrect            | Correct                       |
++----------------------+-------------------------------+
+| SELECT (*) FROM ...  | SELECT * FROM ...             |
+| SELECT (*)           | SELECT *                      |
+| SELECT (col1, col2)  | SELECT col1, col2             |
++----------------------+-------------------------------+
+```
