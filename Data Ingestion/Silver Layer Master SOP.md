@@ -2,6 +2,7 @@ SILVER LAYER MASTER SOP
 One‑word anchor: Conversion  
 Two‑word logic: CSV → Parquet
 
+___________________________________________________________________________________________________________________________________________________________________________
 1. Purpose (Absolute Statement)
 The Silver layer performs a format‑only transformation:
 
@@ -17,7 +18,7 @@ No business rules.
 No filtering.
 No enrichment.
 Only format optimization.
-
+___________________________________________________________________________________________________________________________________________________________________________
 2. Scope
 This SOP applies to all Silver tables:
 
@@ -31,40 +32,57 @@ silver.calendar
 
 Each table is created using CTAS (CREATE EXTERNAL TABLE AS SELECT).
 
+___________________________________________________________________________________________________________________________________________________________________________
 3. System Components
+
 Component	Purpose
+
 Bronze external tables	Read CSV files
+
 Silver folders	Store Parquet output
+
 Parquet file format	Defines output format
+
 CTAS	Performs read → convert → write → register
+
 External data source	Points to ADLS container
+
+___________________________________________________________________________________________________________________________________________________________________________
 4. Silver Layer Micro‑SOP (Mechanical Truth)
+
 Step 1 — Switch to the correct database
-Code
+```Code
 USE nyc_taxi_ldw;
 GO
+```
+
 Step 2 — Ensure the Silver schema exists
-Code
+```Code
 IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'silver')
     EXEC('CREATE SCHEMA silver');
 GO
+```
+
 Step 3 — Drop the Silver table if it exists
-Code
+```Code
 IF OBJECT_ID('silver.<table>') IS NOT NULL
     DROP EXTERNAL TABLE silver.<table>;
 GO
+```
 Step 4 — Delete the Silver folder (mandatory)
 CTAS cannot overwrite.
 Folder must not exist.
 
 Path pattern:
 
-Code
+```Code
 silver/<table>/
 Delete the entire folder.
-
+```
+___________________________________________________________________________________________________________________________________________________________________________
 Step 5 — Create the Silver external table using CTAS
-Code
+
+```Code
 CREATE EXTERNAL TABLE silver.<table>
 WITH
 (
@@ -75,11 +93,16 @@ WITH
 AS
 SELECT *
 FROM bronze.<table>;
+```
+
 Step 6 — Validate
-Code
+
+```Code
 SELECT COUNT(*) FROM silver.<table>;
 SELECT TOP 10 * FROM silver.<table>;
+```
 Step 7 — Storage validation
+
 Data Hub → Container → silver/<table>/
 
 Expect:
@@ -91,17 +114,19 @@ _SUCCESS
 _committed_* files
 
 5. Silver Layer Folder Structure
-Code
+
+```Code
 silver/
    taxi_zone/
    trip_type/
    vendor/
    calendar/
 Each folder is created automatically by CTAS.
-
+```
+___________________________________________________________________________________________________________________________________________________________________________
 6. Silver Layer CTAS Templates (Clean, Reusable)
 Template
-Code
+```sql
 USE nyc_taxi_ldw;
 GO
 
@@ -120,6 +145,7 @@ AS
 SELECT *
 FROM bronze.<table>;
 GO
+```
 Replace <table> with:
 
 taxi_zone
@@ -130,8 +156,9 @@ vendor
 
 calendar
 
+___________________________________________________________________________________________________________________________________________________________________________
 7. ASCII Table — Silver Layer Overview
-Code
+```Code
 +------------------+---------------------------+-------------------------------------------+
 | Silver Table     | Reads From (Bronze)       | Writes To (Storage Folder)                |
 +------------------+---------------------------+-------------------------------------------+
@@ -140,8 +167,12 @@ Code
 | silver.vendor    | bronze.vendor             | silver/vendor                             |
 | silver.calendar  | bronze.calendar           | silver/calendar                           |
 +------------------+---------------------------+-------------------------------------------+
+```
+
+___________________________________________________________________________________________________________________________________________________________________________
 8. RCA Table — Why Silver CTAS Fails
-Code
+
+```Code
 +--------------------------------------+-----------------------------------------+---------------------------+
 | Issue                                | Root Cause                              | Fix                       |
 +--------------------------------------+-----------------------------------------+---------------------------+
@@ -152,6 +183,9 @@ Code
 | "Batch error"                        | DDL cannot share batch                   | Use GO                    |
 | "No files written"                   | Wrong LOCATION or file format            | Correct parameters        |
 +--------------------------------------+-----------------------------------------+---------------------------+
+```
+
+___________________________________________________________________________________________________________________________________________________________________________
 9. Absolute Notes (Canonical Truths)
 These are the rules that never change:
 
@@ -171,10 +205,11 @@ External table DDL must be separated by GO
 
 Pipelines handle cleanup in production
 
+___________________________________________________________________________________________________________________________________________________________________________
 10. Silver Layer Master Script (All Tables in One File)
 This is optional but allowed:
 
-Code
+```Code
 -- taxi_zone
 CTAS...
 GO
@@ -190,4 +225,5 @@ GO
 -- calendar
 CTAS...
 GO
+```
 One script, four CTAS operations.
