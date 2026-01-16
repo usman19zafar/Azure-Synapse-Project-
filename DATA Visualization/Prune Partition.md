@@ -1,5 +1,7 @@
 ```code
+
 Partition pruning delivers a very real business utility: it prevents analytics systems from wasting time and money scanning data that has nothing to do with the question being asked. In a modern data lake, where datasets are often organized by folders such as year and month, pruning allows the query engine to jump directly to the relevant partitions instead of reading every file in the entire hierarchy. This serves the specific business need of cost‑efficient, high‑performance analytics at scale, ensuring that dashboards refresh quickly, data scientists iterate faster, and operational workloads remain predictable. Without partition pruning, every query becomes a full‑dataset scan—leading to dramatically higher compute costs, slower insights, overloaded systems, and unacceptable latency for any organization working with terabytes or petabytes of data. In short, pruning is the difference between a system that scales gracefully and one that collapses under its own weight.
+
 ```
 
 Partition Pruning in Synapse Serverless — Final Notes (With Query Embedded)
