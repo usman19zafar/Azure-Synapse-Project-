@@ -1,75 +1,78 @@
-FINAL NOTES — Creating Views in Synapse Serverless (Bronze Layer)
-1. Purpose of This Lesson
-You created external tables for almost every file in the NYC Taxi dataset.
-Two files could not be used to create external tables:
+Final Notes — Creating Views in Synapse Serverless (Bronze Layer)
 
-rate_code.json
+1. Core Idea: Virtual Tables
 
-payment_type.json
+A view is a virtual table defined by a SELECT statement.
+It does not store data; it exposes data from files, external tables, or other views.
 
-These are JSON‑adjacent files (newline‑delimited JSON fragments), which Serverless SQL cannot map to external tables.
+____________________________________________________________________________________________________________________________________________________________________________
+2. Why Views Matter
 
-However, Serverless SQL can read them using OPENROWSET + OPENJSON, and therefore you can expose them through views.
+Two words: Abstraction Layer.
 
-This lesson teaches you:
+Two more: Access Control.
 
-How to create views in the Bronze layer
+Business analogy:  
 
-How to use OPENROWSET to read JSON files
+Think of a view as a front desk receptionist.
 
-How to use CROSS APPLY OPENJSON to parse JSON
+The receptionist doesn’t store the company’s data — they simply present the right information to the right people without exposing the entire building.
 
-How to use DROP VIEW IF EXISTS
+Views help you:
 
-How to build a view on top of a multi‑folder CSV dataset
+Hide file paths, storage accounts, and OPENROWSET parameters
 
-2. Why Views Matter in the Bronze Layer
-Views allow you to:
+Restrict columns
 
-Expose JSON data even when external tables are not supported
+Restrict rows
 
-Hide complex OPENROWSET parameters
+Provide summarized or filtered datasets
 
-Standardize naming conventions
+Layer logic (view on top of view)
 
-Provide a stable interface for downstream Silver/Gold layers
+Standardize naming and structure for downstream consumers
 
-Add derived columns (like year/month extracted from file paths)
+____________________________________________________________________________________________________________________________________________________________________________
+3. Rules of Views in Synapse Serverless
 
-Apply filters or column selection
+3.1 CREATE VIEW must be first in a batch
 
-Views do not store data.
-They simply replay the SELECT each time.
+If anything appears before it (even a comment + semicolon), the engine fails.
 
-3. Naming Standards
-The instructor recommends:
+Use GO to separate batches.
 
-Schema: bronze
+3.2 Views can be built on:
 
-Prefix: vw_  
-Example: bronze.vw_rate_code
+OPENROWSET
 
-This makes it obvious that the object is a view, not a table.
+External tables
 
-4. Important Synapse Rule
-CREATE VIEW must be the first statement in a batch.
+Other views
 
-Therefore, you must separate statements using:
+Joins between any of the above
 
-Code
-GO
-5. Final Code (Fully Embedded)
-These are the exact, correct, production‑ready versions of all three views.
+3.3 Views do NOT support:
 
-5.1 View: Rate Code (JSON)
-sql
+File formats not supported by external tables (e.g., JSON adjacent)
+
+→ But OPENROWSET + OPENJSON solves this.
+
+____________________________________________________________________________________________________________________________________________________________________________
+4. Bronze Layer View Creation — Final Code (Clean, Correct, Complete)
+
+This is the canonical version you can paste into your workbook.
+
+4.1 View: Rate Code (JSON Adjacent)
+```sql
 USE nyc_taxi_ldw
 GO
-
+```
+```sql
 -- Create view for rate code file
 DROP VIEW IF EXISTS bronze.vw_rate_code
 GO
-
+```
+```sql
 CREATE VIEW bronze.vw_rate_code
 AS
 SELECT rate_code_id, rate_code
@@ -86,13 +89,16 @@ CROSS APPLY OPENJSON(jsonDoc)
 WITH (
         rate_code_id TINYINT,
         rate_code    VARCHAR(20)
-     );
+     )
 GO
 
-SELECT * FROM bronze.vw_rate_code;
+SELECT * FROM bronze.vw_rate_code
 GO
-5.2 View: Payment Type (JSON)
-sql
+```
+
+4.2 View: Payment Type (JSON Adjacent)
+
+```sql
 -- Create view for payment type file
 DROP VIEW IF EXISTS bronze.vw_payment_type
 GO
@@ -112,25 +118,24 @@ CROSS APPLY OPENJSON(jsonDoc)
 WITH (
         payment_type SMALLINT,
         description  VARCHAR(20) '$.payment_type_desc'
-     );
+     )
 GO
+```
 
-SELECT * FROM bronze.vw_payment_type;
+```sql
+SELECT * FROM bronze.vw_payment_type
 GO
-5.3 View: Trip Data Green (CSV, Partitioned Folders)
-This view demonstrates:
+```
 
-Reading partitioned folders using wildcards
+4.3 View: Trip Data Green (CSV Partitioned by Year/Month)
 
-Extracting folder names using filepath(n)
-
-Exposing the raw Bronze data through a view
-
-sql
+```sql
 -- Create view for trip_data_green
 DROP VIEW IF EXISTS bronze.vw_trip_data_green_csv
 GO
+```
 
+```sql
 CREATE VIEW bronze.vw_trip_data_green_csv
 AS
 SELECT
@@ -144,30 +149,54 @@ FROM OPENROWSET(
         PARSER_VERSION = '2.0',
         HEADER_ROW = TRUE
      )
-     WITH (
-        VendorID INT,
-        lpep_pickup_datetime datetime2(7),
-        lpep_dropoff_datetime datetime2(7),
-        store_and_fwd_flag CHAR(1),
-        RatecodeID INT,
-        PULocationID INT,
-        DOLocationID INT,
-        passenger_count INT,
-        trip_distance FLOAT,
-        fare_amount FLOAT,
-        extra FLOAT,
-        mta_tax FLOAT,
-        tip_amount FLOAT,
-        tolls_amount FLOAT,
-        ehail_fee INT,
-        improvement_surcharge FLOAT,
-        total_amount FLOAT,
-        payment_type INT,
-        trip_type INT,
-        congestion_surcharge FLOAT
-     ) AS result;
+WITH (
+    VendorID INT,
+    lpep_pickup_datetime datetime2(7),
+    lpep_dropoff_datetime datetime2(7),
+    store_and_fwd_flag CHAR(1),
+    RatecodeID INT,
+    PULocationID INT,
+    DOLocationID INT,
+    passenger_count INT,
+    trip_distance FLOAT,
+    fare_amount FLOAT,
+    extra FLOAT,
+    mta_tax FLOAT,
+    tip_amount FLOAT,
+    tolls_amount FLOAT,
+    ehail_fee INT,
+    improvement_surcharge FLOAT,
+    total_amount FLOAT,
+    payment_type INT,
+    trip_type INT,
+    congestion_surcharge FLOAT
+) AS result
 GO
-
+```
+```sql
 SELECT TOP (100) *
-FROM bronze.vw_trip_data_green_csv;
+FROM bronze.vw_trip_data_green_csv
 GO
+```
+5. Are the Codes Enough for Notes, or Notes Enough for Code?
+Short answer:
+Both are required. Each completes the other.
+
+Architect answer:
+The code is the mechanical truth — the executable artifact.
+
+The notes are the boundary truth — the conceptual artifact.
+
+Together, they form a complete learning unit in your Data Architect workbook.
+
+Two‑word logic:
+Code = Execution
+
+Notes = Understanding
+
+Business analogy:
+The code is the factory machine.
+The notes are the operating manual.
+A machine without a manual is dangerous.
+A manual without a machine is useless.
+Together, they create a repeatable system.
