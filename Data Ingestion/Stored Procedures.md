@@ -323,7 +323,11 @@ Two‑word logic: Right Tool
        YES             NO                  YES       NO
         |               |                   |         |
 Use Stored Proc     Use Spark         Use CTAS     Use Spark
-(CTAS per partition) (native partitioning) (simple write) (complex logic)
+(CTAS per
+partition)         (native
+                    partitioning)     (simple
+                                        write)     (complex
+                                                        logic)
 ```
 3.2 When to Use Stored Procedures (Serverless SQL)
 Use stored procedures when:
