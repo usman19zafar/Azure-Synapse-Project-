@@ -1,9 +1,12 @@
-A9 — PARTITIONED PARQUET (WORKAROUND USING SERVERLESS SQL)
+PARTITIONED PARQUET (WORKAROUND USING SERVERLESS SQL)
 One‑word anchor: Partitioning  
 Two‑word logic: Force → Folders
 
+___________________________________________________________________________________________________________________________________________________________________
 1. Purpose (Absolute Statement)
-CTAS cannot write partitioned Parquet folders.
+   
+CTAS cannot write partitioned Parquet folders. (it will take data from partition files and give one parquet file)!
+
 It always writes one output folder per CTAS statement.
 
 To preserve partitioning (e.g., year=2020/month=01), we must:
@@ -15,8 +18,9 @@ Write each partition to its own Silver folder
 Use a stored procedure to automate the pattern
 
 This is the only way to maintain partitioned Parquet using Serverless SQL.
-
+___________________________________________________________________________________________________________________________________________________________________
 2. Why CTAS Breaks Partitioning (Mechanical Truth)
+
 CTAS has three hard limitations:
 
 Writes to one folder only
@@ -27,24 +31,28 @@ Cannot partition output based on column values
 
 So if your raw data is partitioned like:
 
-Code
+```Code
 raw/trip_data_green_csv/year=2020/month=01/*.csv
 raw/trip_data_green_csv/year=2020/month=02/*.csv
-...
+```
+
 CTAS will flatten everything into:
 
-Code
+```Code
 silver/trip_data_green/*.parquet
+```
 This destroys partition pruning and slows down queries.
 
+___________________________________________________________________________________________________________________________________________________________________
 3. The Workaround (Canonical Pattern)
 To preserve partitions, you must:
 
 Run CTAS once per partition
 Each CTAS writes to:
 
-Code
+```Code
 silver/trip_data_green/year=<YYYY>/month=<MM>/
+```
 Use a stored procedure
 usp_silver_trip_data_green accepts:
 
@@ -57,15 +65,16 @@ and writes only that partition.
 Execute the procedure for every partition
 This is what your script is doing:
 
-Code
+```Code
 EXEC silver.usp_silver_trip_data_green '2020', '01'
 EXEC silver.usp_silver_trip_data_green '2020', '02'
-...
+```
 EXEC silver.usp_silver_trip_data_green '2021', '06'
 Each execution produces one Parquet folder.
 
+___________________________________________________________________________________________________________________________________________________________________
 4. Partitioned Parquet Folder Structure
-Code
+```sql
 silver/
    trip_data_green/
       year=2020/
@@ -78,6 +87,7 @@ silver/
          month=01/
          month=02/
          ...
+```
 This restores:
 
 Partition pruning
@@ -86,17 +96,24 @@ Fast queries
 
 Big‑data scalability
 
+___________________________________________________________________________________________________________________________________________________________________
 5. Stored Procedure Logic (Micro‑SOP)
 Inside usp_silver_trip_data_green, the logic is:
 
 Step 1 — Drop existing partition table
-Code
+
+```sql
 DROP EXTERNAL TABLE IF EXISTS silver.trip_data_green_<YYYY>_<MM>
+```
+
 Step 2 — Delete Silver folder for that partition
-Code
+
+```sql
 silver/trip_data_green/year=<YYYY>/month=<MM>/
+```
 Step 3 — CTAS for that partition
-Code
+```sql
+
 CREATE EXTERNAL TABLE silver.trip_data_green_<YYYY>_<MM>
 WITH
 (
@@ -109,11 +126,15 @@ SELECT *
 FROM bronze.trip_data_green_csv
 WHERE year = <YYYY>
   AND month = <MM>;
+```
 Step 4 — Validate
-Code
+
+```Code
 SELECT TOP 10 * FROM silver.trip_data_green_<YYYY>_<MM>;
+```
+___________________________________________________________________________________________________________________________________________________________________
 6. Result Achievements (How Success Was Verified)
-Code
+```Code
 +--------------------------------------+-----------------------------------------------------------+
 | Result                               | How It Was Verified                                       |
 +--------------------------------------+-----------------------------------------------------------+
@@ -122,8 +143,11 @@ Code
 | Data preserved by year/month         | SELECT COUNT(*) matches raw partition counts              |
 | Query performance improved           | Serverless prunes partitions automatically                |
 +--------------------------------------+-----------------------------------------------------------+
+```
+___________________________________________________________________________________________________________________________________________________________________
 7. RCA Notes (Why Partitioning Fails)
-Code
+
+```Code
 +--------------------------------------+-----------------------------------------+---------------------------+
 | Issue                                | Root Cause                              | Fix                       |
 +--------------------------------------+-----------------------------------------+---------------------------+
@@ -133,6 +157,9 @@ Code
 | Wrong partition output               | Incorrect WHERE year/month filter        | Validate parameters       |
 | Folder exists error                  | Partition folder not deleted             | Delete folder before CTAS |
 +--------------------------------------+-----------------------------------------+---------------------------+
+```
+___________________________________________________________________________________________________________________________________________________________________
+
 8. Absolute Notes (Canonical Truths)
 These rules never change:
 
