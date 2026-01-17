@@ -2,6 +2,7 @@ Azure Synapse Data Engineering Project
 
 NOTE: To provide a meaningful answer, it’s important to first understand the exact question being asked. These notes are simply my personal reflections and learning aids—they help me maintain a more human, personalized touch in my own study process. They are not a substitute for official documentation, and anyone following along should always refer to the platform’s official library for complete and authoritative guidance.
 
+If this become my way of giving back to industry and Public, I would gladly accept it and feel proud in it.
 Please also remember that I’m not responsible for the accuracy of the content here. These are just my notes, written without full context, and they may not capture every detail or nuance of the underlying technology.
 
 Educational & Demonstration Purpose Only
