@@ -187,7 +187,7 @@ Business Requirements + Non‑Functional Requirements + Data Mapping + Gold Sche
 | 6. Keep schema simple and reporting-friendly                                                 |
 +----------------------------------------------------------------------------------------------+
 ```
-8. SUMMARY (GITHUB‑READY)
+8. SUMMARY
 ```Code
 This Gold layer design supports the NYC Taxi Commission’s business goal of increasing credit card
 usage by providing aggregated, partitioned, and campaign-ready metrics. The table captures payment
