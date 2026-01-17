@@ -297,6 +297,96 @@ Runs the CTAS statement
 Creates the partitioned Parquet output
 
 Registers the external table
+Complete Code
+```sql
+
+USE nyc_taxi_ldw
+GO
+
+CREATE OR ALTER PROCEDURE silver.usp_silver_trip_data_green
+@year VARCHAR(4),
+@month VARCHAR(2)
+AS
+BEGIN
+
+    DECLARE @create_sql_stmt NVARCHAR(MAX),
+            @drop_sql_stmt   NVARCHAR(MAX);
+
+    SET @create_sql_stmt = 
+        'CREATE EXTERNAL TABLE silver.trip_data_green_' + @year + '_' + @month + 
+        ' WITH
+            (
+                DATA_SOURCE = nyc_taxi_src,
+                LOCATION = ''silver/trip_data_green/year=' + @year + '/month=' + @month + ''',
+                FILE_FORMAT = parquet_file_format
+            )
+        AS
+        SELECT [VendorID] AS vendor_id
+                ,[lpep_pickup_datetime]
+                ,[lpep_dropoff_datetime]
+                ,[store_and_fwd_flag]
+                ,[total_amount]
+                ,[payment_type]
+                ,[trip_type]
+                ,[congestion_surcharge]
+                ,[extra]
+                ,[mta_tax]
+                ,[tip_amount]
+                ,[tolls_amount]
+                ,[improvement_surcharge]
+                ,[RatecodeID] AS rate_code_id
+                ,[PULocationID] AS pu_location_id
+                ,[DOLocationID] AS do_location_id
+                ,[passenger_count]
+                ,[trip_distance]
+                ,[fare_amount]
+        FROM bronze.vw_trip_data_green_csv
+        WHERE year = ''' + @year + '''
+          AND month = ''' + @month + '''';    
+
+    print(@create_sql_stmt)
+
+    EXEC sp_executesql @create_sql_stmt;
+
+    SET @drop_sql_stmt = 
+        'DROP EXTERNAL TABLE silver.trip_data_green_' + @year + '_' + @month;
+
+    print(@drop_sql_stmt)
+    EXEC sp_executesql @drop_sql_stmt;
+
+END;
+```
+
+Test run
+```sql
+
+EXEC silver.usp_silver_trip_data_green '2020', '01'
+```
+
+Output suppose to be parquet format file for siler layer. than we need to delete the green data folder or run the remaining files. through command given below!
+
+Command for STORE PROCEDURE: But it did not happened this way. check the case study in second stored procedure file.
+
+```sql
+EXEC silver.usp_silver_trip_data_green '2020', '01'
+EXEC silver.usp_silver_trip_data_green '2020', '02'
+EXEC silver.usp_silver_trip_data_green '2020', '03'
+EXEC silver.usp_silver_trip_data_green '2020', '04'
+EXEC silver.usp_silver_trip_data_green '2020', '05'
+EXEC silver.usp_silver_trip_data_green '2020', '06'
+EXEC silver.usp_silver_trip_data_green '2020', '07'
+EXEC silver.usp_silver_trip_data_green '2020', '08'
+EXEC silver.usp_silver_trip_data_green '2020', '09'
+EXEC silver.usp_silver_trip_data_green '2020', '10'
+EXEC silver.usp_silver_trip_data_green '2020', '11'
+EXEC silver.usp_silver_trip_data_green '2020', '12'
+EXEC silver.usp_silver_trip_data_green '2021', '01'
+EXEC silver.usp_silver_trip_data_green '2021', '02'
+EXEC silver.usp_silver_trip_data_green '2021', '03'
+EXEC silver.usp_silver_trip_data_green '2021', '04'
+EXEC silver.usp_silver_trip_data_green '2021', '05'
+EXEC silver.usp_silver_trip_data_green '2021', '06'
+```
 
 3. DECISION TREE — STORED PROCEDURES VS SPARK
 One‑word anchor: Choice
