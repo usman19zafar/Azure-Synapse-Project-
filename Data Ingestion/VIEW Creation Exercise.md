@@ -100,6 +100,7 @@ silver/trip_data_green/year=2020/month=01/
 ```
 No other folders will be touched — this is true partition pruning.
 
+```Code
 Code Health Check
 +------------------------+---------+--------------------------------------------------------------+
 |       Checkpoint       | Status  | Notes                                                        |
@@ -120,7 +121,7 @@ Code Health Check
 +------------------------+---------+--------------------------------------------------------------+
 | Query preview          |   ✔     | SELECT TOP(100) confirms view integrity                      |
 +------------------------+---------+--------------------------------------------------------------+
-
+```
 Next Steps
 Use this view as the source for Gold layer transformations
 
