@@ -19,7 +19,12 @@ ________________________________________________________________________________
 
 Functional:
 
-    Extract year, month, borough, trip date, day name, weekend flag.
+    Extract year, 
+    month, 
+    borough, 
+    trip date, 
+    day name, 
+    weekend flag.
     Aggregate trip counts by payment type (credit vs cash).
 
 Non‑functional:
